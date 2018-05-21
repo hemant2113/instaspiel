@@ -1,0 +1,7 @@
+app/__init__.pyc
+app/roles/migrations/*
+app/users/migrations/*
+app/company/migrations/*
+app/master/migrations/*
+app/nurture/migrations/*
+*.pyc
