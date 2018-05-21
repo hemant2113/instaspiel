@@ -117,7 +117,3 @@ class LoginApi(APIView):
 			print(e)
 			return ApiResponse().error("Error", 500)
 					
-# class LoginTemplate(TemplateView):
-# 	def get(self,request):
-# 		return render(request,'user/login.html')
-

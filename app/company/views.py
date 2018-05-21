@@ -53,11 +53,6 @@ class CompanyApi(APIView):
 			return ApiResponse().error("Please send valid id", 400)
 
 
-class CompanyTemplate(TemplateView):
-	def get(self,request):
-		return render(request,'company/add_company.html')
-
-
 
 
 

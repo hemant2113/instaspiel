@@ -8,7 +8,7 @@ class UserProfile(models.Model):
 
 	user = models.ForeignKey(User)
 	role = models.ForeignKey(Role,default='')
-	company = models.ForeignKey(Company)
+	company = models.ForeignKey(Company,blank=True,null=True)
 	first_name = models.CharField(max_length=45)
 	last_name = models.CharField(max_length=45)
 	status = models.BooleanField(default=True)
