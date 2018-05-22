@@ -14,6 +14,12 @@ class CompanySerializer(serializers.ModelSerializer):
 				'required':"Please fill this field",
 				}
 			},
+			'url': {
+				'required':True,
+				'error_messages':{
+				'required':"Please fill this field",
+				}
+			},
 			
 		}		
 

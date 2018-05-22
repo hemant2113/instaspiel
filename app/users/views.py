@@ -12,6 +12,10 @@ from django.http import JsonResponse
 from django.contrib.auth import authenticate
 from rest_framework.authtoken.models import Token
 from app.lib.response import ApiResponse
+from app.lib.common import AccessUserObj, RequestOverwrite
+
+
+
 
 class UserApi(APIView):
 
@@ -45,7 +49,7 @@ class UserApi(APIView):
 
 	def create_user(self,request):
 		try:
-			return User.objects.create_user(username=request.data.get('email'),email=request.data.get('email'),password=request.data.get('password'))
+			return User.objects.create_user(username=request.data.get('username'),email=request.data.get('email'),password=request.data.get('password'))
 		except Exception as err:
 			print(err)
 			return False
@@ -95,9 +99,9 @@ class LoginApi(APIView):
 					auth_user = authenticate(username=email, password=password)
 				except Exception as err:
 					print(err)
-					return ApiResponse().error('username or password incorrect')
+					return ApiResponse().error('username or password incorrect', 400)
 				if not(auth_user):
-					return ApiResponse().error('username or password incorrect')
+					return ApiResponse().error('username or password incorrect', 400)
 				token,created = Token.objects.get_or_create(user_id=user.id)
 				print(token)
 				if(user):
@@ -111,9 +115,28 @@ class LoginApi(APIView):
 					}
 				user_response = user_data.data
 				user_response.update(token_value)
+				print(user_response)
 				return ApiResponse().success(user_response,200)
 			return ApiResponse().error("Error", 400)	
 		except Exception as e:
 			print(e)
 			return ApiResponse().error("Error", 500)
-					
+
+class LogOut(APIView):
+	
+	def delete(self,request):
+		try:
+			print("test")
+			token = AccessUserObj().fromToken(request).user
+			print(token)
+			try:
+				auth_user = authenticate(token)
+			except Exception as err:
+				print(err)
+				return ApiResponse().error('username or password incorrect', 400)
+			if not(auth_user):
+				return ApiResponse().error('username or password incorrect', 400)
+		except Exception as err:
+			print("errrror")
+			return ApiResponse().error('username or password incorrect', 500)
+

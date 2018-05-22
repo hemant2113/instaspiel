@@ -19,9 +19,9 @@ class Command(BaseCommand):
 			pass		
 
 		roles = [];
-		roles.append(Roles(name="Admin"))
-		roles.append(Roles(name="Users"))
-		roles.append(Roles(name="Visitor"))
+		roles.append(Role(name="admin"))
+		roles.append(Role(name="user"))
+		roles.append(Role(name="visitor"))
 		Role.objects.bulk_create(roles)
 
 

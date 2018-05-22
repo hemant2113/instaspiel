@@ -11,17 +11,16 @@ class UserSerializer(serializers.ModelSerializer):
 		except Exception as e:
 			print(e)
 
-	user_name = serializers.SerializerMethodField("getUserName")
-	def getUserName(self,obj):
+	user_data = serializers.SerializerMethodField("getUserData")
+	def getUserData(self,obj):
 		try:
-			
-			return User.objects.get(id=obj.user.id).username
+			return User.objects.get(id=obj.user.id).email
 		except Exception as e:
 			print(e)
 	
 	class Meta:
 		model = UserProfile
-		fields = ('id','user','role','company','user_name','role_name','first_name','last_name','is_deleted','created_at','updated_at','status')
+		fields = ('id','user','role','company','user_data','role_name','first_name','last_name','is_deleted','created_at','updated_at','status')
 		extra_kwargs = {
 			'role': {
 				'required':True,
@@ -29,16 +28,13 @@ class UserSerializer(serializers.ModelSerializer):
 				'required':"Please fill this field",
 				}
 			},
-			'first_name': {
+			
+			'user_data': {
 				'required':True,
 				'error_messages':{
-				'required':"first name is required",
+				'required':"This field is required"
 				}
 			},
-			'last_name': {
-				'required':True,
-				'error_messages':{
-				'required':"last name is required"
-				}
-			},
-		}	
+			
+		}
+

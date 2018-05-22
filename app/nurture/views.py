@@ -23,10 +23,10 @@ class NurtureApi(APIView):
 	def get(self,request,nurture_id=None):
 		try:
 			if(nurture_id):
-				nurture_data = Nurture.objects.filter(is_deleted=False,pk=nurture_id)[0]
+				nurture_data = Nurture.objects.filter(is_deleted=True,pk=nurture_id)[0]
 				get_data = NurtureSerializer(nurture_data)
 			else:
-				nurture_data = Nurture.objects.filter(is_deleted=False)
+				nurture_data = Nurture.objects.filter(is_deleted=True)
 				get_data = NurtureSerializer(nurture_data,many=True)
 			return ApiResponse().success(get_data.data,200)
 		except Exception as err: 
