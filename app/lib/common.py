@@ -11,7 +11,6 @@ from django.views.generic.edit import UpdateView
 class AccessUserObj:
 
 	def fromToken(self,request):
-
 		token = request.META['HTTP_AUTHORIZATION'].replace("Token","")	
 		return Token.objects.get(key=str(token).strip())
 

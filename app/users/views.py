@@ -23,7 +23,7 @@ class UserApi(APIView):
 		try:
 			user = self.create_user(request)
 			if not(user):
-				return ApiResponse().error("Error while create user",500)
+				return ApiResponse().error("Error while create user",400)
 			self.overWrite(request, {'user':user.id})
 			user_data = UserSerializer(data=request.data)
 			if not(user_data.is_valid()):
@@ -49,7 +49,7 @@ class UserApi(APIView):
 
 	def create_user(self,request):
 		try:
-			return User.objects.create_user(username=request.data.get('username'),email=request.data.get('email'),password=request.data.get('password'))
+			return User.objects.create_user(username=request.data.get('email'),email=request.data.get('email'),password=request.data.get('password'))
 		except Exception as err:
 			print(err)
 			return False
@@ -89,23 +89,18 @@ class UserApi(APIView):
 
 class LoginApi(APIView):
 	# permission_classes = (IsAuthenticatedOrCreate, )
-	def post(self,request,*args, **kwargs):
+	def post(self,request):
 		try:
-			email = request.data.get('email')
-			password = request.data.get('password')
-			if email:
-				user = User.objects.get(username=email)
+			if request.data.get('email') and request.data.get('password'):
 				try:
-					auth_user = authenticate(username=email, password=password)
+					auth_user = authenticate(username=request.data.get('email'), password=request.data.get('password'))
 				except Exception as err:
 					print(err)
-					return ApiResponse().error('username or password incorrect', 400)
-				if not(auth_user):
-					return ApiResponse().error('username or password incorrect', 400)
-				token,created = Token.objects.get_or_create(user_id=user.id)
-				print(token)
-				if(user):
-					userprofile = UserProfile.objects.get(user_id=user.id)
+					return ApiResponse().error("email or password invalid", 400)			
+				token,create = Token.objects.get_or_create(user_id=auth_user.id)	
+				print(token,create)
+				if(auth_user):
+					userprofile = UserProfile.objects.get(user_id=auth_user.id)
 					user_data = UserSerializer(userprofile)
 				else:
 					userData = UserProfile.objects.all()
@@ -116,27 +111,21 @@ class LoginApi(APIView):
 				user_response = user_data.data
 				user_response.update(token_value)
 				print(user_response)
-				return ApiResponse().success(user_response,200)
-			return ApiResponse().error("Error", 400)	
-		except Exception as e:
-			print(e)
-			return ApiResponse().error("Error", 500)
+				return ApiResponse().success("success", 200)
+
+			return ApiResponse().error("Please send email and password", 400)
+		except Exception as err:
+			print(err)
+			return ApiResponse().error("user matching query does not exists", 500)
 
 class LogOut(APIView):
 	
-	def delete(self,request):
+	def post(self,request):
 		try:
-			print("test")
-			token = AccessUserObj().fromToken(request).user
-			print(token)
-			try:
-				auth_user = authenticate(token)
-			except Exception as err:
-				print(err)
-				return ApiResponse().error('username or password incorrect', 400)
-			if not(auth_user):
-				return ApiResponse().error('username or password incorrect', 400)
+			user = AccessUserObj().fromToken(request).user.id
+			res = Token.objects.filter(user = user).delete()
+			return ApiResponse().success("Logout Successfully", 200)
 		except Exception as err:
-			print("errrror")
-			return ApiResponse().error('username or password incorrect', 500)
+			print(err)
+			return ApiResponse().error('Token matching query does not exist', 500)
 
