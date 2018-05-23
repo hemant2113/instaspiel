@@ -13,6 +13,7 @@ from django.contrib.auth import authenticate
 from rest_framework.authtoken.models import Token
 from app.lib.response import ApiResponse
 from app.lib.common import AccessUserObj, RequestOverwrite
+from app.lib.email import Email
 
 
 
@@ -29,7 +30,7 @@ class UserApi(APIView):
 			if not(user_data.is_valid()):
 				return ApiResponse().error(user_data.errors,400)
 			user_data.save()
-			return ApiResponse().success(user_data.data,200)
+			return ApiResponse().success("User created successfully",201)
 		except Exception as err:
 			print(err)
 			return ApiResponse().error("Error",500)
@@ -123,9 +124,47 @@ class LogOut(APIView):
 	def post(self,request):
 		try:
 			user = AccessUserObj().fromToken(request).user.id
-			res = Token.objects.filter(user = user).delete()
+			Token.objects.filter(user = user).delete()
 			return ApiResponse().success("Logout Successfully", 200)
 		except Exception as err:
 			print(err)
 			return ApiResponse().error('Token matching query does not exist', 500)
 
+class ChangePassword(APIView):
+
+	def post(self,request):
+		try:
+			user = AccessUserObj().fromToken(request).user
+			print(user)
+			if UserProfile.objects.filter(is_deleted=True, user=user):
+				return ApiResponse().success("User does not exist",200) 
+			password =request.data.get("new_password")
+			confirm_password = request.data.get("confirm_password")
+			if password != '' and confirm_password !='':
+				if password != confirm_password:
+					return ApiResponse().success("New Password and Confirm Password does not match",400)
+				user.set_password(request.data.get("new_password"))
+				user.save()
+				return ApiResponse().success("password changed successfully",200)
+			return ApiResponse().error("Password empty", 400)   
+		except Exception as err:
+			print(err)
+			return ApiResponse().error("Error while change password",500)
+
+
+class ForGotPassword(APIView):
+	def post(self,request):
+		try:
+			user = User.objects.get(email = request.data.get("email"))
+			print(user)
+		except Exception as err:
+			return ApiResponse().error("This email is not registered", 400)
+		password = User.objects.make_random_password()
+		user.set_password(password)
+		user.save()
+		frm = 'instaspiel@gmail.com'
+		body = "Hi there. \n You have requested a new password for your account on Instaspiel.\nYour temporary password is "+password+""
+		if Email.sendMail("Forgot password",body,frm,user.email) is True:
+		    return ApiResponse().success("New password was sent to your inbox",200)    
+		return ApiResponse().error("Error while sending the email",500) 
+		
