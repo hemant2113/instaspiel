@@ -17,14 +17,13 @@ from app.lib.email import Email
 
 
 
-
 class UserApi(APIView):
 
 	def post(self,request):
 		try:
 			user = self.create_user(request)
 			if not(user):
-				return ApiResponse().error("Error while create user",400)
+				return ApiResponse().error("This email is already registered",400)
 			self.overWrite(request, {'user':user.id})
 			user_data = UserSerializer(data=request.data)
 			if not(user_data.is_valid()):
@@ -33,7 +32,7 @@ class UserApi(APIView):
 			return ApiResponse().success("User created successfully",201)
 		except Exception as err:
 			print(err)
-			return ApiResponse().error("Error",500)
+			return ApiResponse().error("There is a problem while creating user",500)
 
 	def overWrite(self, request, dic):
 		try:
@@ -66,7 +65,7 @@ class UserApi(APIView):
 			return ApiResponse().success(user_data.data,200)
 		except Exception as err: 
 			print(err) 
-			return ApiResponse().error("Error while getting the user details",500)
+			return ApiResponse().error("Error",500)
 
 	def put(self,request,user_id):
 		try:
@@ -78,7 +77,7 @@ class UserApi(APIView):
 			else:
 				return ApiResponse().error(update_data.errors,400)	
 		except:
-			return ApiResponse().error("Error while updating the user details",500)
+			return ApiResponse().error("Error",500)
 
 	def delete(self,request,user_id):
 		try:
@@ -117,7 +116,7 @@ class LoginApi(APIView):
 			return ApiResponse().error("Please send email and password", 400)
 		except Exception as err:
 			print(err)
-			return ApiResponse().error("user matching query does not exists", 500)
+			return ApiResponse().error("Error while login", 500)
 
 class LogOut(APIView):
 	
@@ -145,11 +144,11 @@ class ChangePassword(APIView):
 					return ApiResponse().success("New Password and Confirm Password does not match",400)
 				user.set_password(request.data.get("new_password"))
 				user.save()
-				return ApiResponse().success("password changed successfully",200)
+				return ApiResponse().success("password changed successfully", 200)
 			return ApiResponse().error("Password empty", 400)   
 		except Exception as err:
 			print(err)
-			return ApiResponse().error("Error while change password",500)
+			return ApiResponse().error("Error while change password", 500)
 
 
 class ForGotPassword(APIView):
