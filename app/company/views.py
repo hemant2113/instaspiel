@@ -17,7 +17,7 @@ class CompanyApi(APIView):
 			return ApiResponse().success("Company added successfully",200)
 		except Exception as err:
 			print(err)
-			return ApiResponse().error("Error while adding company",400)
+			return ApiResponse().error("Error",500)
 
 	def get(self,request,company_id=None):
 		try:
@@ -40,9 +40,9 @@ class CompanyApi(APIView):
 				update_data.save()
 				return ApiResponse().success("Company details updated Successfully",200)
 			else:
-				return ApiResponse().error(update_data.errors,400)	
+				return ApiResponse().error("Error while updating the company details",400)	
 		except:
-			return ApiResponse().error("Error while updating the company details",500)
+			return ApiResponse().error("Error",500)
 
 	def delete(self,request,company_id):
 		try:

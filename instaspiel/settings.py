@@ -47,6 +47,13 @@ INSTALLED_APPS = [
     'corsheaders',
 ]
 
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'instaspiel@gmail.com'
+EMAIL_HOST_PASSWORD = 'FGTRY23@#$'
+EMAIL_PORT = 587
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
