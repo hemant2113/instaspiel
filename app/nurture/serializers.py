@@ -14,7 +14,12 @@ class NurtureSerializer(serializers.ModelSerializer):
 				'required':"Please fill this field",
 				}
 			},
-			
+			'description': {
+				'required':True,
+				'error_messages':{
+				'required':"Please fill this field",
+				}
+			},
 		}		
 
 
@@ -24,7 +29,7 @@ class NurtureUrlSerializer(serializers.ModelSerializer):
 		model = NurtureUrl
 		fields = ('id','name','url','nurture','is_deleted','created_at','updated_at')
 		extra_kwargs = {
-			'name': {
+			'url': {
 				'required':True,
 				'error_messages':{
 				'required':"Please fill this field",

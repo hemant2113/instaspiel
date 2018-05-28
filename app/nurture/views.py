@@ -6,27 +6,35 @@ from django.views.generic import TemplateView
 from django.shortcuts import render,redirect
 from app.nurture.models import Nurture,NurtureUrl
 from app.lib.response import ApiResponse
+from app.lib.common import AccessUserObj
+from app.users.models import UserProfile
 
 class NurtureApi(APIView):
 	def post(self,request):
 		try:
+			# user = AccessUserObj().fromToken(request).user
+			# user_id = UserProfile.objects.get(user_id = user.id)
+			# print(user.id)
+			# if (user_id.role.id == 3):
 			nurture_data = NurtureSerializer(data=request.data)
 			if not(nurture_data.is_valid()):
 				return ApiResponse().error(nurture_data.errors,400)
 			nurture_data.save()
 			return ApiResponse().success("Nurture added successfully",200)
+			# return ApiResponse().error("You are not authorised to create nurture", 400)
 		except Exception as err:
 			print(err)
-			return ApiResponse().error("Error while adding nurture",400)
+			return ApiResponse().error("Error while adding nurture", 500)
 
 	def get(self,request,nurture_id=None):
 		try:
 			if(nurture_id):
-				nurture_data = Nurture.objects.filter(is_deleted=True,pk=nurture_id)[0]
+				nurture_data = Nurture.objects.filter(is_deleted=False,pk=nurture_id)[0]
 				get_data = NurtureSerializer(nurture_data)
 			else:
-				nurture_data = Nurture.objects.filter(is_deleted=True)
-				get_data = NurtureSerializer(nurture_data,many=True)
+				nurture_data = Nurture.objects.filter(is_deleted=False)
+				get_data = NurtureSerializer(nurture_data, many=True)
+				print(get_data.data)
 			return ApiResponse().success(get_data.data,200)
 		except Exception as err: 
 			print(err) 

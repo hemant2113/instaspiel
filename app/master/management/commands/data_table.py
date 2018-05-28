@@ -10,7 +10,6 @@ class Command(BaseCommand):
 	args ='';
 	help='For insert data in role model'
 
-
 	def insertData(self):
 		try:
 			if(Role.objects.all().count() > 0):
@@ -19,9 +18,11 @@ class Command(BaseCommand):
 			pass		
 
 		roles = [];
-		roles.append(Role(name="admin"))
-		roles.append(Role(name="user"))
-		roles.append(Role(name="visitor"))
+		roles.append(Role(name="Superadmin"))
+		roles.append(Role(name="Subadmin"))
+		roles.append(Role(name="Company admin"))
+		roles.append(Role(name="Company subadmin"))
+		roles.append(Role(name="Visitor"))
 		Role.objects.bulk_create(roles)
 
 
@@ -31,8 +32,8 @@ class Command(BaseCommand):
 				return "Data has already exists in db"
 		except:
 			pass		
-		email = "admin@gmail.com"
-		user = User.objects.create_user(username=email,email=email,password=12345,is_staff=True)
+		email = "admin6@gmail.com"
+		user = User.objects.create_user(username=email,email=email,password=12345)
 		userProfile = UserProfile(first_name="admin",role=Role.objects.get(id=1),last_name="admin",status=True,user = user)
 		userProfile.save()
 

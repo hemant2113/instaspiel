@@ -1,36 +1,37 @@
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
-from app.company.serializers import CompanySerializer
+from app.company.serializers import CompanySerializer,AssignCompanySerializer
 from django.views.generic import TemplateView
 from django.shortcuts import render,redirect
 from app.company.models import Company
 from app.lib.response import ApiResponse
+from app.users.serializers import UserSerializer
 
 class CompanyApi(APIView):
 	def post(self,request):
 		try:
 			company_data = CompanySerializer(data=request.data)
 			if not(company_data.is_valid()):
-				return ApiResponse().error(company_data.errors,400)
+				return ApiResponse().error(company_data.errors, 400)
 			company_data.save()
-			return ApiResponse().success("Company added successfully",200)
+			return ApiResponse().success("Company added successfully", 200)
 		except Exception as err:
 			print(err)
-			return ApiResponse().error("Error",500)
+			return ApiResponse().error("Error", 500)
 
 	def get(self,request,company_id=None):
 		try:
 			if(company_id):
-				company_data = Company.objects.filter(is_deleted=False,pk=company_id)[0]
+				company_data = Company.objects.filter(is_deleted=False, pk=company_id)[0]
 				get_data = CompanySerializer(company_data)
 			else:
 				company_data = Company.objects.filter(is_deleted=False)
-				get_data = CompanySerializer(company_data,many=True)
-			return ApiResponse().success(get_data.data,200)
+				get_data = CompanySerializer(company_data, many=True)
+			return ApiResponse().success(get_data.data, 200)
 		except Exception as err: 
 			print(err) 
-			return ApiResponse().error("Error while getting the company details",500)
+			return ApiResponse().error("Error while getting the company details", 500)
 
 	def put(self,request,company_id):
 		try:
@@ -38,11 +39,11 @@ class CompanyApi(APIView):
 			update_data = CompanySerializer(get_data,data=request.data)
 			if update_data.is_valid():
 				update_data.save()
-				return ApiResponse().success("Company details updated Successfully",200)
+				return ApiResponse().success("Company details updated Successfully", 200)
 			else:
-				return ApiResponse().error("Error while updating the company details",400)	
+				return ApiResponse().error("Error while updating the company details", 400)	
 		except:
-			return ApiResponse().error("Error",500)
+			return ApiResponse().error("Error", 500)
 
 	def delete(self,request,company_id):
 		try:
@@ -53,6 +54,29 @@ class CompanyApi(APIView):
 			return ApiResponse().error("Please send valid id", 400)
 
 
+class AssignCompanies(APIView):
+	def post(self,request):
+		try:
+			company_data = AssignCompanySerializer(data=request.data)
+			if not(company_data.is_valid()):
+				return ApiResponse().error(company_data.errors, 400)
+			company_data.save()
+			return ApiResponse().success("Company and User added successfully", 200)
+		except Exception as err:
+			print(err)
+			return ApiResponse().error("Error", 500)
 
 
+	def get(self, request, user_id):
+		try:
+			user = UserLib().isAdmin(request)
+			if user is False:
+				ApiLogger().error(self, request)
+				return ApiResponse().error("This user is not permitted to changes",400)
 
+			user = UserSerializer(UserProfile.objects.get(user = user_id))
+			return ApiResponse().success(user.data,200)
+		except Exception as err:
+			print (err)
+			ApiLogger().error(self, request)
+			return ApiResponse().error("Problem occurs while fetching data",500)
