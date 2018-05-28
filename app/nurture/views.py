@@ -20,6 +20,9 @@ class NurtureApi(APIView):
 			if not(nurture_data.is_valid()):
 				return ApiResponse().error(nurture_data.errors,400)
 			nurture_data.save()
+			if(request.data.get('name')):
+				nurture = Nurture.objects.get(id = nurture_data.data.get('id'))
+				NurtureUrl.objects.create(nurture = nurture, name = request.data.get('name') ,url = request.data.get('url'))
 			return ApiResponse().success("Nurture added successfully",200)
 			# return ApiResponse().error("You are not authorised to create nurture", 400)
 		except Exception as err:
