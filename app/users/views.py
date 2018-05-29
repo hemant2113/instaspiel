@@ -14,7 +14,7 @@ from rest_framework.authtoken.models import Token
 from app.lib.response import ApiResponse
 from app.lib.common import AccessUserObj
 from app.lib.email import Email
-
+from functools import wraps
 
 class UserApi(APIView):
 
@@ -24,6 +24,8 @@ class UserApi(APIView):
 			# user_id = UserProfile.objects.get(user_id = user_token.id)
 			# print(user_token.id)
 			# if (user_id.role.id == 3) or (user_id.role.id == 1):
+			if not len(request.data.get('password'))>=6:
+				return ApiResponse().error("Please fill minimum password lenght six", 400)
 			user = self.create_user(request)
 			if not(user):
 				return ApiResponse().error("This email is already registered", 400)
@@ -54,6 +56,7 @@ class UserApi(APIView):
 	def create_user(self,request):
 		try:
 			return User.objects.create_user(username=request.data.get('email'),email=request.data.get('email'),password=request.data.get('password'))
+			 
 		except Exception as err:
 			print(err)
 			return False
@@ -74,12 +77,13 @@ class UserApi(APIView):
 	def put(self,request,user_id):
 		try:
 			get_data = UserProfile.objects.get(pk=user_id)
+			self.overWrite(request, {'user':user_id})
 			update_data = UserSerializer(get_data,data=request.data)
 			if update_data.is_valid():
 				update_data.save()
-				return ApiResponse().success("User details updated Successfully",200)
+				return ApiResponse().success("User details updated Successfully", 200)
 			else:
-				return ApiResponse().error(update_data.errors,400)	
+				return ApiResponse().error(update_data.errors, 400)	
 		except:
 			return ApiResponse().error("Error", 500)
 
@@ -107,19 +111,17 @@ class UserCompanyApi(APIView):
 			return ApiResponse().error("Error",500)
 
 
-
 class LoginApi(APIView):
 	# permission_classes = (IsAuthenticatedOrCreate, )
 	def post(self,request):
 		try:
-			print(request.data.get('email'))
-			print(request.data.get('password')) 
-			if request.data.get('email') and request.data.get('password'):
+			if not len(request.data.get('password'))>=6:
+				return ApiResponse().error("Required maximum password lenght is six", 400)
+			if request.data.get('email') and len(request.data.get('password'))>=6:
 				try:
 					auth_user = authenticate(username=request.data.get('email'), password=request.data.get('password'))
-					# if auth_user:
-					# 	use for bug fixing
-					# return ApiResponse().error("email or password invalid", 400)	
+					if not auth_user:
+						return ApiResponse().error("invalid email or password", 400)	
 				except Exception as err:
 					print(err)
 					return ApiResponse().error("email or password invalid", 400)			
@@ -136,8 +138,8 @@ class LoginApi(APIView):
 				user_response = user_data.data
 				user_response.update(token_value)
 				print(user_response)
-				return ApiResponse().success("success", 200)
-			return ApiResponse().error("Please send email and password", 400)
+				return ApiResponse().success(user_response, 200)
+			return ApiResponse().error("Please send correct email and password", 400)
 		except Exception as err:
 			print(err)
 			return ApiResponse().error("Error while login", 500)
@@ -162,14 +164,16 @@ class ChangePassword(APIView):
 			user = AccessUserObj().fromToken(request).user
 			if UserProfile.objects.filter(is_deleted=True, user=user):
 				return ApiResponse().success("User does not exist",400) 
-			password =request.data.get("new_password")
+			password = request.data.get("new_password")
 			confirm_password = request.data.get("confirm_password")
 			if password != '' and confirm_password !='':
-				if password != confirm_password:
-					return ApiResponse().success("New Password and Confirm Password does not match",400)
-				user.set_password(request.data.get("new_password"))
-				user.save()
-				return ApiResponse().success("password changed successfully", 200)
+				if len(password)>=6 and len(confirm_password)>=6:
+					if password != confirm_password:
+						return ApiResponse().success("New Password and Confirm Password does not match",400)
+					user.set_password(request.data.get("new_password"))
+					user.save()
+					return ApiResponse().success("password changed successfully", 200)
+				return ApiResponse().error("Please Fill Minimum Password length Six", 400)
 			return ApiResponse().error("Password empty", 400)   
 		except Exception as err:
 			print(err)
@@ -183,6 +187,7 @@ class ForGotPassword(APIView):
 		except Exception as err:
 			return ApiResponse().error("This email is not registered", 400)
 		password = User.objects.make_random_password()
+		print(password)
 		user.set_password(password)
 		user.save()
 		frm = 'instaspiel@gmail.com'
