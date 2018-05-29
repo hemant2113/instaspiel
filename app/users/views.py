@@ -15,27 +15,29 @@ from app.lib.response import ApiResponse
 from app.lib.common import AccessUserObj
 from app.lib.email import Email
 from functools import wraps
+from rest_framework.decorators import authentication_classes, permission_classes
+from app.lib.permissions import IsAuthenticatedOrCreate
 
 class UserApi(APIView):
-
+	
 	def post(self,request):
 		try:
-			# user_token = AccessUserObj().fromToken(request).user
-			# user_id = UserProfile.objects.get(user_id = user_token.id)
-			# print(user_token.id)
-			# if (user_id.role.id == 3) or (user_id.role.id == 1):
-			if not len(request.data.get('password'))>=6:
-				return ApiResponse().error("Please fill minimum password lenght six", 400)
-			user = self.create_user(request)
-			if not(user):
-				return ApiResponse().error("This email is already registered", 400)
-			self.overWrite(request, {'user':user.id})
-			user_data = UserSerializer(data=request.data)
-			if not(user_data.is_valid()):
-				return ApiResponse().error(user_data.errors, 400)
-			user_data.save()
-			return ApiResponse().success("User created successfully", 201)
-		# return ApiResponse().error("You are not authorised to create user", 400)
+			user_token = AccessUserObj().fromToken(request).user
+			user_id = UserProfile.objects.get(user_id = user_token.id)
+			print(user_token.id)
+			if (user_id.role.id == 3) or (user_id.role.id == 1):
+				if not len(request.data.get('password'))>=6:
+					return ApiResponse().error("Please fill minimum password lenght six", 400)
+				user = self.create_user(request)
+				if not(user):
+					return ApiResponse().error("This email is already registered", 400)
+				self.overWrite(request, {'user':user.id})
+				user_data = UserSerializer(data=request.data)
+				if not(user_data.is_valid()):
+					return ApiResponse().error(user_data.errors, 400)
+				user_data.save()
+				return ApiResponse().success("User created successfully", 201)
+			return ApiResponse().error("You are not authorised to create user", 400)
 		except Exception as err:
 			print(err)
 			return ApiResponse().error("There is a problem while creating user", 500)
@@ -62,9 +64,10 @@ class UserApi(APIView):
 			return False
 
 	def get(self,request,user_id=None):
+		permission_classes = (IsAuthenticatedOrCreate, )
 		try:
 			if(user_id):
-				userprofile = UserProfile.objects.filter(is_deleted=False, pk=user_id)[0]
+				userprofile = UserProfile.objects.filter(is_deleted=False, user=user_id)[0]
 				user_data = UserSerializer(userprofile)
 			else:
 				userData = UserProfile.objects.filter(is_deleted=False)
@@ -75,13 +78,16 @@ class UserApi(APIView):
 			return ApiResponse().error("Error",500)
 
 	def put(self,request,user_id):
+		permission_classes = (IsAuthenticatedOrCreate, )
 		try:
-			get_data = UserProfile.objects.get(pk=user_id)
+			get_data = UserProfile.objects.get(user=user_id)
 			self.overWrite(request, {'user':user_id})
+			if(request.data.get('email')):
+				User.objects.filter(id = user_id).update(email = request.data.get('email')) 
 			update_data = UserSerializer(get_data,data=request.data)
 			if update_data.is_valid():
 				update_data.save()
-				return ApiResponse().success("User details updated Successfully", 200)
+				return ApiResponse().success(update_data.data, 200)
 			else:
 				return ApiResponse().error(update_data.errors, 400)	
 		except:
@@ -112,7 +118,7 @@ class UserCompanyApi(APIView):
 
 
 class LoginApi(APIView):
-	# permission_classes = (IsAuthenticatedOrCreate, )
+	permission_classes = (IsAuthenticatedOrCreate, )
 	def post(self,request):
 		try:
 			if not len(request.data.get('password'))>=6:
@@ -137,7 +143,6 @@ class LoginApi(APIView):
 					}
 				user_response = user_data.data
 				user_response.update(token_value)
-				print(user_response)
 				return ApiResponse().success(user_response, 200)
 			return ApiResponse().error("Please send correct email and password", 400)
 		except Exception as err:
