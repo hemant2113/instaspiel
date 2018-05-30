@@ -40,7 +40,7 @@ class UserApi(APIView):
 			if not(user_data.is_valid()):
 				return ApiResponse().error(user_data.errors, 400)
 			user_data.save()
-			return ApiResponse().success(user_data.data, 201)
+			return ApiResponse().success(user_data.data, 200)
 			# return ApiResponse().error("Invalid email and password", 400)
 		except Exception as err:
 			print(err)
@@ -86,7 +86,7 @@ class UserApi(APIView):
 			get_data = UserProfile.objects.get(user=user_id)
 			self.overWrite(request, {'user':user_id})
 			if(request.data.get('email')):
-				User.objects.filter(id = user_id).update(email = request.data.get('email')) 
+				User.objects.filter(id = user_id).update(email = request.data.get('email'), username = request.data.get('email')) 
 			update_data = UserSerializer(get_data,data=request.data)
 			if update_data.is_valid():
 				update_data.save()
