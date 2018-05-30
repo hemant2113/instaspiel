@@ -25,9 +25,13 @@ class UserApi(APIView):
 			# user_token = AccessUserObj().fromToken(request).user
 			# user_id = UserProfile.objects.get(user_id = user_token.id)
 			# print(user_token.id)
-			# if (user_id.role.id == 3) or (user_id.role.id == 1):
-			if not len(request.data.get('password'))>=6:
-				return ApiResponse().error("Please fill minimum password lenght six", 400)
+			# # if (user_id.role.id == 3) or (user_id.role.id == 1):
+			# email = request.data.get('email')
+			# password = request.data.get('password')
+			# print(email,password)
+			# if (email.is_valid()) and (password.is_valid()):
+			# 	if not len(request.data.get('password'))>=6:
+			# 		return ApiResponse().error("Please fill minimum password lenght six", 400)
 			user = self.create_user(request)
 			if not(user):
 				return ApiResponse().error("This email is already registered", 400)
@@ -37,7 +41,7 @@ class UserApi(APIView):
 				return ApiResponse().error(user_data.errors, 400)
 			user_data.save()
 			return ApiResponse().success(user_data.data, 201)
-			# return ApiResponse().error("You are not authorised to create user", 400)
+			# return ApiResponse().error("Invalid email and password", 400)
 		except Exception as err:
 			print(err)
 			return ApiResponse().error("There is a problem while creating user", 500)
@@ -58,7 +62,6 @@ class UserApi(APIView):
 	def create_user(self,request):
 		try:
 			return User.objects.create_user(username=request.data.get('email'),email=request.data.get('email'),password=request.data.get('password'))
-			 
 		except Exception as err:
 			print(err)
 			return False
@@ -72,10 +75,10 @@ class UserApi(APIView):
 			else:
 				userData = UserProfile.objects.filter(is_deleted=False)
 				user_data = UserSerializer(userData, many=True)
-			return ApiResponse().success(user_data.data,200)
+			return ApiResponse().success(user_data.data, 200)
 		except Exception as err: 
 			print(err) 
-			return ApiResponse().error("Error",500)
+			return ApiResponse().error("Error", 500)
 
 	def put(self,request,user_id):
 		permission_classes = (IsAuthenticatedOrCreate, )
@@ -121,9 +124,9 @@ class LoginApi(APIView):
 	permission_classes = (IsAuthenticatedOrCreate, )
 	def post(self,request):
 		try:
-			if not len(request.data.get('password'))>=6:
-				return ApiResponse().error("Required maximum password lenght is six", 400)
-			if request.data.get('email') and len(request.data.get('password'))>=6:
+			# if not len(request.data.get('password'))>=6:
+			# 	return ApiResponse().error("Required maximum password lenght is six", 400)
+			if request.data.get('email') and len(request.data.get('password')):
 				try:
 					auth_user = authenticate(username=request.data.get('email'), password=request.data.get('password'))
 					if not auth_user:
