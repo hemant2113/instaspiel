@@ -15,16 +15,16 @@ class NurtureApi(APIView):
 			# user = AccessUserObj().fromToken(request).user
 			# user_id = UserProfile.objects.get(user_id = user.id)
 			# print(user.id)
-			# if (user_id.role.id == 3):
-			nurture_data = NurtureSerializer(data=request.data)
+			# if (user_id.role.id == 3) or (user_id.role.id == 1):
+			nurture_data = NurtureSerializer(data = request.data)
 			if not(nurture_data.is_valid()):
 				return ApiResponse().error(nurture_data.errors,400)
 			nurture_data.save()
 			if(request.data.get('url_name')):
 				nurture = Nurture.objects.get(id = nurture_data.data.get('id'))
 				NurtureUrl.objects.create(nurture = nurture, name = request.data.get('url_name') ,url = request.data.get('url'))
-			return ApiResponse().success("Nurture added successfully",200)
-		# return ApiResponse().error("You are not authorised to create nurture", 400)
+			return ApiResponse().success("Nurture added successfully", 200)
+			# return ApiResponse().error("You are not authorised to create nurture", 400)
 		except Exception as err:
 			print(err)
 			return ApiResponse().error("Error while adding nurture", 500)
