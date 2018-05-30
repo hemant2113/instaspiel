@@ -69,14 +69,27 @@ class AssignCompanies(APIView):
 
 	def get(self, request, user_id):
 		try:
-			user = UserLib().isAdmin(request)
-			if user is False:
-				ApiLogger().error(self, request)
-				return ApiResponse().error("This user is not permitted to changes",400)
+			# user = UserLib().isAdmin(request)
+			# if user is False:
+			# 	ApiLogger().error(self, request)
+			# 	return ApiResponse().error("This user is not permitted to changes", 400)
 
 			user = UserSerializer(UserProfile.objects.get(user = user_id))
 			return ApiResponse().success(user.data,200)
 		except Exception as err:
 			print (err)
 			ApiLogger().error(self, request)
-			return ApiResponse().error("Problem occurs while fetching data",500)
+			return ApiResponse().error("Problem occurs while fetching data", 500)
+
+class UpdatedCountCompany(APIView):
+
+	def get(self,request):
+		try:
+			total = Company.objects.filter(is_deleted = False).count()
+			company = Company.objects.filter(is_deleted = False).order_by('-updated_at')[0]
+			data = {'total_company': total, 'updated_company': company.name}	
+			return ApiResponse().success(data, 200)
+		except Exception as err:
+			print(err)
+			return ApiResponse().error("Error while getting total count or updated company info", 400)
+
