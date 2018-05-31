@@ -97,7 +97,7 @@ class UserApi(APIView):
 				get_data = UserProfile.objects.get(user=user_id)
 				self.overWrite(request, {'user':user_id})
 				# if(request.data.get('email')):
-				User.objects.filter(id = user_id).update(email = request.data.get('email')) 
+				User.objects.filter(id = user_id).update(email = request.data.get('email'), username = request.data.get('email')) 
 				update_data = UserSerializer(get_data,data=request.data)
 				if update_data.is_valid():
 					update_data.save()
@@ -138,7 +138,7 @@ class LoginApi(APIView):
 		try:
 			# if not len(request.data.get('password'))>=6:
 			# 	return ApiResponse().error("Required maximum password lenght is six", 400)
-			if request.data.get('email') and len(request.data.get('password')):
+			if request.data.get('email') and request.data.get('password'):
 				try:
 					auth_user = authenticate(username=request.data.get('email'), password=request.data.get('password'))
 					if not auth_user:
