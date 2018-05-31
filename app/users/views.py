@@ -110,7 +110,7 @@ class UserApi(APIView):
 
 	def delete(self,request,user_id):
 		try:
-			UserProfile.objects.filter(pk=user_id).update(is_deleted=True)
+			UserProfile.objects.filter(user=user_id).update(is_deleted=True)
 			return ApiResponse().success("Successfully Deleted", 200)
 		except Exception as err:
 			print(err)
@@ -148,11 +148,13 @@ class LoginApi(APIView):
 					return ApiResponse().error("email or password invalid", 400)			
 				token,create = Token.objects.get_or_create(user_id=auth_user.id)	
 				if(auth_user):
-					userprofile = UserProfile.objects.get(user_id=auth_user.id)
-					user_data = UserSerializer(userprofile)
-				else:
-					userData = UserProfile.objects.all()
-					user_data = UserSerializer(userData, many=True)
+					try:
+						userprofile = UserProfile.objects.get(user_id=auth_user.id, is_deleted=False)
+						user_data = UserSerializer(userprofile)
+					except Exception as err:
+						print(err)	
+						return ApiResponse().error("invalid email or password", 400)
+
 				token_value = {
 					'token':token.key,
 					}
@@ -230,3 +232,4 @@ class UserRole(APIView):
 			return ApiResponse().error("You are not authorised to create user and nurture", 400)
 		except Exception as err:
 			return ApiResponse().error("Error", 500) 	
+

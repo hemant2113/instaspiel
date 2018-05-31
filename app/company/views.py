@@ -1,7 +1,7 @@
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
-from app.company.serializers import CompanySerializer,AssignCompanySerializer
+from app.company.serializers import CompanySerializer,AssignCompanySerializer,CompanyDetailSerializer
 from django.views.generic import TemplateView
 from django.shortcuts import render,redirect
 from app.company.models import Company
@@ -28,7 +28,7 @@ class CompanyApi(APIView):
 				company_data = Company.objects.filter(is_deleted=False, pk=company_id)[0]
 				get_data = CompanySerializer(company_data)
 			else:
-				company_data = Company.objects.filter(is_deleted=False)
+				company_data = Company.objects.filter(is_deleted=False).order_by('-id')
 				get_data = CompanySerializer(company_data, many=True)
 			return ApiResponse().success(get_data.data, 200)
 		except Exception as err: 
@@ -53,7 +53,7 @@ class CompanyApi(APIView):
 			return ApiResponse().success("Successfully Deleted", 200)
 		except Exception as err:
 			print(err)
-			return ApiResponse().error("Please send valid id", 400)
+			return ApiResponse().error("Please send valid id", 500)
 
 
 class AssignCompanies(APIView):
@@ -87,5 +87,17 @@ class UpdatedCountCompany(APIView):
 			return ApiResponse().success(data, 200)
 		except Exception as err:
 			print(err)
-			return ApiResponse().error("Error while getting total count or updated company info", 400)
+			return ApiResponse().error("Error while getting total count or updated company info", 500)
 
+
+class GetCompanyByName(APIView):
+	def post(self,request):
+	
+		try:
+			company = Company.objects.filter(is_deleted = False, name__istartswith = request.data.get('name'))[0]
+			company_data = CompanyDetailSerializer(company)
+			return ApiResponse().success(company_data.data, 200)
+		except Exception as err:
+			print(err)
+			return ApiResponse().error("Error while getting the details", 500)
+	
