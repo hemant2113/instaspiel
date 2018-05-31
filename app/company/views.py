@@ -6,11 +6,13 @@ from django.views.generic import TemplateView
 from django.shortcuts import render,redirect
 from app.company.models import Company
 from app.lib.response import ApiResponse
+from app.lib.common import RequestOverwrite
 from app.users.serializers import UserSerializer
 
 class CompanyApi(APIView):
 	def post(self,request):
 		try:
+			print(request.data)
 			company_data = CompanySerializer(data=request.data)
 			if not(company_data.is_valid()):
 				return ApiResponse().error(company_data.errors, 400)
@@ -69,16 +71,10 @@ class AssignCompanies(APIView):
 
 	def get(self, request, user_id):
 		try:
-			# user = UserLib().isAdmin(request)
-			# if user is False:
-			# 	ApiLogger().error(self, request)
-			# 	return ApiResponse().error("This user is not permitted to changes", 400)
-
 			user = UserSerializer(UserProfile.objects.get(user = user_id))
-			return ApiResponse().success(user.data,200)
+			return ApiResponse().success(user.data, 200)
 		except Exception as err:
 			print (err)
-			ApiLogger().error(self, request)
 			return ApiResponse().error("Problem occurs while fetching data", 500)
 
 class UpdatedCountCompany(APIView):

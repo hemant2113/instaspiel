@@ -25,7 +25,7 @@ class UserApi(APIView):
 			# user_token = AccessUserObj().fromToken(request).user
 			# user_id = UserProfile.objects.get(user_id = user_token.id)
 			# print(user_token.id)
-			# # if (user_id.role.id == 3) or (user_id.role.id == 1):
+			# if (user_id.role.id == 3) or (user_id.role.id == 1):
 			# email = request.data.get('email')
 			# password = request.data.get('password')
 			# print(email,password)
@@ -83,17 +83,29 @@ class UserApi(APIView):
 	def put(self,request,user_id):
 		permission_classes = (IsAuthenticatedOrCreate, )
 		try:
-			get_data = UserProfile.objects.get(user=user_id)
-			self.overWrite(request, {'user':user_id})
 			if(request.data.get('email')):
-				User.objects.filter(id = user_id).update(email = request.data.get('email'), username = request.data.get('email')) 
-			update_data = UserSerializer(get_data,data=request.data)
-			if update_data.is_valid():
-				update_data.save()
-				return ApiResponse().success(update_data.data, 200)
-			else:
-				return ApiResponse().error(update_data.errors, 400)	
-		except:
+				try:
+					user = User.objects.get(email=request.data.get('email'))
+					if int(user_id) != int(user.id):
+						print('---')
+						return ApiResponse().error("This email is already exist", 400)
+				except Exception as err:
+					print(err)
+			# print('--------------------')		
+			
+			# if(request.data.get('email')):
+				get_data = UserProfile.objects.get(user=user_id)
+				self.overWrite(request, {'user':user_id})
+				# if(request.data.get('email')):
+				User.objects.filter(id = user_id).update(email = request.data.get('email')) 
+				update_data = UserSerializer(get_data,data=request.data)
+				if update_data.is_valid():
+					update_data.save()
+					return ApiResponse().success(update_data.data, 200)
+				else:
+					return ApiResponse().error(update_data.errors, 400)	
+		except Exception as err:
+			print(err)
 			return ApiResponse().error("Error", 500)
 
 	def delete(self,request,user_id):

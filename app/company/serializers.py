@@ -6,7 +6,7 @@ class CompanySerializer(serializers.ModelSerializer):
 	
 	class Meta:
 		model = Company
-		fields = ('id','name','logo','favicon','url','header_script','is_deleted','created_at','updated_at')
+		fields = ('id','name','logo','favicon','url','header_script','body_script','is_deleted','created_at','updated_at')
 		extra_kwargs = {
 			'name': {
 				'required':True,
