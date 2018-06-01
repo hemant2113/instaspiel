@@ -49,10 +49,12 @@ class UserApi(APIView):
 
 	def create_user(self,request):
 		try:
-			return User.objects.create_user(username=request.data.get('email'),email=request.data.get('email'),password=request.data.get('password'))
+			user = User.objects.create_user(username=request.data.get('email'),
+			email=request.data.get('email'),password=request.data.get('password'),is_staff=True)
+			return user
 		except Exception as err:
 			print(err)
-			return False
+			return None
 
 	def get(self,request,user_id=None):
 		permission_classes = (IsAuthenticatedOrCreate, )
@@ -78,7 +80,6 @@ class UserApi(APIView):
 				try:
 					user = User.objects.get(email=request.data.get('email'))
 					if int(user_id) != int(user.id):
-						print('---')
 						return ApiResponse().error("This email is already exist", 400)
 				except Exception as err:
 					print(err)
@@ -128,11 +129,12 @@ class LoginApi(APIView):
 			if request.data.get('email') and request.data.get('password'):
 				try:
 					auth_user = authenticate(username=request.data.get('email'), password=request.data.get('password'))
-					if not auth_user:
-						return ApiResponse().error("invalid email or password", 400)	
 				except Exception as err:
 					print(err)
-					return ApiResponse().error("email or password invalid", 400)			
+					return ApiResponse().error("Invalid username or password",400)			
+				if not auth_user:
+					return ApiResponse().error("invalid email or password", 400)	
+	
 				token,create = Token.objects.get_or_create(user_id=auth_user.id)	
 				if(auth_user):
 					try:
@@ -171,6 +173,7 @@ class ChangePassword(APIView):
 	def post(self,request):
 		try:
 			user = AccessUserObj().fromToken(request).user
+			print(user)
 			if UserProfile.objects.filter(is_deleted=True, user=user):
 				return ApiResponse().success("User does not exist",400) 
 			password = request.data.get("new_password")

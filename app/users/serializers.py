@@ -5,11 +5,11 @@ from django.contrib.auth.models import User
 from app.company.serializers import CompanySerializer
 from app.company.models import Company
 
-class UserSerializer(serializers.ModelSerializer):
+# class UserSerializer(serializers.ModelSerializer):
 
-	class Meta:
-		model = User
-		fields = ('email','id','password')
+# 	class Meta:
+# 		model = User
+# 		fields = ('email','id','password')
 
 class UserSerializer(serializers.ModelSerializer):
 	role_name = serializers.SerializerMethodField("getRoleName")
