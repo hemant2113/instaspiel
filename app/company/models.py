@@ -12,7 +12,7 @@ class Company(models.Model):
 	body_script = models.TextField(null=True,blank=True)
 	is_deleted = models.BooleanField(default=False)
 	created_at = models.DateTimeField(auto_now_add=True)
-	updated_at = models.DateTimeField(auto_now_add=True)
+	updated_at = models.DateTimeField(auto_now=True)
 
 
 class AssignCompanies(models.Model):
@@ -20,7 +20,7 @@ class AssignCompanies(models.Model):
 	company = models.ForeignKey(Company,blank=True,null=True)
 	is_deleted = models.BooleanField(default=False)
 	created_at = models.DateTimeField(auto_now_add=True)
-	updated_at = models.DateTimeField(auto_now_add=True)
+	updated_at = models.DateTimeField(auto_now=True)
 
 	class Meta:
 		managed = True

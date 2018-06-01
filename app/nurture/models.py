@@ -9,7 +9,7 @@ class Nurture(models.Model):
 	description = models.TextField(null=True,blank=True)
 	is_deleted = models.BooleanField(default=False)
 	created_at = models.DateTimeField(auto_now_add=True)
-	updated_at = models.DateTimeField(auto_now_add=True)
+	updated_at = models.DateTimeField(auto_now=True)
 
 	class Meta:
 		managed = True
@@ -22,7 +22,7 @@ class NurtureUrl(models.Model):
 	url = models.TextField(null=True,blank=True)
 	is_deleted = models.BooleanField(default=False)
 	created_at = models.DateTimeField(default=datetime.now)
-	updated_at = models.DateTimeField(auto_now_add=True)
+	updated_at = models.DateTimeField(auto_now=True)
 
 	class Meta:
 		managed = True

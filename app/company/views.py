@@ -12,7 +12,6 @@ from app.users.serializers import UserSerializer
 class CompanyApi(APIView):
 	def post(self,request):
 		try:
-			print(request.data)
 			company_data = CompanySerializer(data=request.data)
 			if not(company_data.is_valid()):
 				return ApiResponse().error(company_data.errors, 400)
@@ -24,9 +23,13 @@ class CompanyApi(APIView):
 
 	def get(self,request,company_id=None):
 		try:
+
 			if(company_id):
-				company_data = Company.objects.filter(is_deleted=False, pk=company_id)[0]
-				get_data = CompanySerializer(company_data)
+				try:
+					get_data = CompanySerializer(Company.objects.get(is_deleted=False, id=company_id))
+				except Exception as err:
+					print(err)	
+					return ApiResponse().error("please provide valid company id", 400)
 			else:
 				company_data = Company.objects.filter(is_deleted=False).order_by('-id')
 				get_data = CompanySerializer(company_data, many=True)

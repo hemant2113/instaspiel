@@ -12,7 +12,7 @@ from django.http import JsonResponse
 from django.contrib.auth import authenticate
 from rest_framework.authtoken.models import Token
 from app.lib.response import ApiResponse
-from app.lib.common import AccessUserObj
+from app.lib.common import AccessUserObj,RequestOverwrite
 from app.lib.email import Email
 from functools import wraps
 from rest_framework.decorators import authentication_classes, permission_classes
@@ -35,7 +35,7 @@ class UserApi(APIView):
 			user = self.create_user(request)
 			if not(user):
 				return ApiResponse().error("This email is already registered", 400)
-			self.overWrite(request, {'user':user.id})
+			RequestOverwrite().overWrite(request, {'user':user.id})
 			user_data = UserSerializer(data=request.data)
 			if not(user_data.is_valid()):
 				return ApiResponse().error(user_data.errors, 400)
@@ -46,18 +46,6 @@ class UserApi(APIView):
 			print(err)
 			return ApiResponse().error("There is a problem while creating user", 500)
 
-	def overWrite(self, request, dic):
-		try:
-			try:
-				if request.data._mutable is False:
-					request.data._mutable = True
-			except:
-				pass
-			for key,value in dic.items():
-				request.data[key] = value
-		except Exception as err:
-			print(err)
-			return False
 
 	def create_user(self,request):
 		try:
@@ -70,8 +58,11 @@ class UserApi(APIView):
 		permission_classes = (IsAuthenticatedOrCreate, )
 		try:
 			if(user_id):
-				userprofile = UserProfile.objects.filter(is_deleted=False, user=user_id)[0]
-				user_data = UserSerializer(userprofile)
+				try:
+					user_data = UserSerializer(UserProfile.objects.get(is_deleted=False, user=user_id))
+				except Exception as err:
+					print(err)	
+					return ApiResponse().error("please provide valid user id", 400)
 			else:
 				userData = UserProfile.objects.filter(is_deleted=False)
 				user_data = UserSerializer(userData, many=True)
@@ -91,12 +82,9 @@ class UserApi(APIView):
 						return ApiResponse().error("This email is already exist", 400)
 				except Exception as err:
 					print(err)
-			# print('--------------------')		
-			
-			# if(request.data.get('email')):
+		
 				get_data = UserProfile.objects.get(user=user_id)
 				self.overWrite(request, {'user':user_id})
-				# if(request.data.get('email')):
 				User.objects.filter(id = user_id).update(email = request.data.get('email'), username = request.data.get('email')) 
 				update_data = UserSerializer(get_data,data=request.data)
 				if update_data.is_valid():
@@ -114,7 +102,7 @@ class UserApi(APIView):
 			return ApiResponse().success("Successfully Deleted", 200)
 		except Exception as err:
 			print(err)
-			return ApiResponse().error("Please send valid id", 400)
+			return ApiResponse().error("Please send valid id", 500)
 
 class UserCompanyApi(APIView):
 
@@ -125,7 +113,6 @@ class UserCompanyApi(APIView):
 				user_data = UserSerializer(userprofile, many=True)
 			else:
 				return ApiResponse().error("please send company id", 400)
-
 			return ApiResponse().success(user_data.data, 200)
 		except Exception as err: 
 			print(err) 
@@ -223,12 +210,9 @@ class UserRole(APIView):
 	def post(self,request):
 		try:
 			user = AccessUserObj().fromToken(request).user
-			print(user)
 			user_id = UserProfile.objects.get(user_id = user.id)
 			if (user_id.role.id == 3):
-				print("fjgd")
 				return ApiResponse().success("you can create user and nurture", 200)
-			print(hiii)
 			return ApiResponse().error("You are not authorised to create user and nurture", 400)
 		except Exception as err:
 			return ApiResponse().error("Error", 500) 	

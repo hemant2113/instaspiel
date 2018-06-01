@@ -20,9 +20,17 @@ class NurtureApi(APIView):
 			if not(nurture_data.is_valid()):
 				return ApiResponse().error(nurture_data.errors,400)
 			nurture_data.save()
-			if(request.data.get('url_name')):
+			if(request.data.get('nurture_url')):
+				urlData = []
 				nurture = Nurture.objects.get(id = nurture_data.data.get('id'))
-				NurtureUrl.objects.create(nurture = nurture, name = request.data.get('url_name') ,url = request.data.get('url'))
+				for nurl in request.data.get('nurture_url'):
+					nurture_url = NurtureUrl()
+					nurture_url.name = nurl['name'] 
+					nurture_url.url = nurl['url'] 
+					nurture_url.nurture = nurture
+					urlData.append(nurture_url) 
+
+				NurtureUrl.objects.bulk_create(urlData)
 			return ApiResponse().success("Nurture added successfully", 200)
 			# return ApiResponse().error("You are not authorised to create nurture", 400)
 		except Exception as err:
@@ -32,27 +40,42 @@ class NurtureApi(APIView):
 	def get(self,request,nurture_id=None):
 		try:
 			if(nurture_id):
-				nurture_data = Nurture.objects.filter(is_deleted=False,pk=nurture_id)[0]
-				get_data = NurtureSerializer(nurture_data)
+				try:
+					get_data = NurtureSerializer(Nurture.objects.get(is_deleted=False,id=nurture_id))
+				except Exception as err:
+					print(err)	
+					return ApiResponse().error("please provide valid nurture id", 400)
 			else:
 				nurture_data = Nurture.objects.filter(is_deleted=False)
 				get_data = NurtureSerializer(nurture_data, many=True)
-				print(get_data.data)
 			return ApiResponse().success(get_data.data, 200)
 		except Exception as err: 
 			print(err) 
-			return ApiResponse().error("Nurture does not exists", 400)
+			return ApiResponse().error("Nurture does not exists", 500)
 
 	def put(self,request,nurture_id):
 		try:
 			get_data = Nurture.objects.get(pk=nurture_id)
-			print(get_data.company.id)
 			RequestOverwrite().overWriteUserId(request, {'company':get_data.company.id})
-
-			print(request.data)
 			update_data = NurtureSerializer(get_data,data=request.data)
 			if update_data.is_valid():
 				update_data.save()
+				if(request.data.get('nurture_url')):
+					urlData = []
+					nurture = Nurture.objects.get(id = update_data.data.get('id'))
+					for nurl in request.data.get('nurture_url'):
+						nurture_url = NurtureUrl()
+						try:
+							NurtureUrl.objects.get(nurture = nurture.id, name = nurl['name'], url = nurl['url'])
+							continue
+						except Exception as err:
+							print(err)	
+						nurture_url.name = nurl['name'] 
+						nurture_url.url = nurl['url'] 
+						nurture_url.nurture = nurture
+						urlData.append(nurture_url) 
+
+					NurtureUrl.objects.bulk_create(urlData)
 				return ApiResponse().success("Nurture details updated Successfully",200)
 			else:
 				return ApiResponse().error(update_data.errors, 400)	
@@ -99,8 +122,11 @@ class NurtureUrlApi(APIView):
 	def get(self,request,nurtureurl_id=None):
 		try:
 			if(nurtureurl_id):
-				nurture_data = NurtureUrl.objects.filter(is_deleted=False,pk=nurtureurl_id)[0]
-				get_data = NurtureUrlSerializer(nurture_data)
+				try:
+					get_data = NurtureUrlSerializer(NurtureUrl.objects.get(is_deleted=False,pk=nurtureurl_id))
+				except Exception as err:
+					print(err)	
+					return ApiResponse().error("please provide valid nurture url id", 400)
 			else:
 				nurture_data = NurtureUrl.objects.filter(is_deleted=False)
 				get_data = NurtureUrlSerializer(nurture_data,many=True)
