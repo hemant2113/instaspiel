@@ -56,27 +56,40 @@ class NurtureApi(APIView):
 	def put(self,request,nurture_id):
 		try:
 			get_data = Nurture.objects.get(pk=nurture_id)
-			RequestOverwrite().overWriteUserId(request, {'company':get_data.company.id})
 			update_data = NurtureSerializer(get_data,data=request.data)
 			if update_data.is_valid():
 				update_data.save()
-				if(request.data.get('nurture_url')):
-					urlData = []
-					nurture = Nurture.objects.get(id = update_data.data.get('id'))
-					for nurl in request.data.get('nurture_url'):
-						nurture_url = NurtureUrl()
+				if(request.data.get('nurture_url_1')):
+					for nurl in request.data.get('nurture_url_1'):
 						try:
-							NurtureUrl.objects.get(nurture = nurture.id, name = nurl['name'], url = nurl['url'])
+							NurtureUrl.objects.filter(id = nurl['id']).update(name = nurl['name'], url = nurl['url'])
 							continue
 						except Exception as err:
 							print(err)	
+						
+				if(request.data.get('nurture_url_2')):
+					urlData = []
+					nurture = Nurture.objects.get(id = nurture_id)
+					for nurl in request.data.get('nurture_url_2'):
+						nurture_url = NurtureUrl()
+						# NurtureUrl.objects.filter(id = nurl['id']).update(name = nurl['name'], url = nurl['url'])
+						print("===========")
+						print(nurl['name'])
+						print(nurl['url'])
+						if nurl['name']=="" and nurl['url']=="":
+							continue
+						# try:
+						# 	NurtureUrl.objects.get(nurture = nurture.id).update(name = nurl['name'], url = nurl['url'])
+						# 	continue
+						# except Exception as err:
+						# 	print(err)	
 						nurture_url.name = nurl['name'] 
 						nurture_url.url = nurl['url'] 
 						nurture_url.nurture = nurture
 						urlData.append(nurture_url) 
-
 					NurtureUrl.objects.bulk_create(urlData)
-				return ApiResponse().success("Nurture details updated Successfully",200)
+
+				return ApiResponse().success("Nurture details updated Successfully", 200)
 			else:
 				return ApiResponse().error(update_data.errors, 400)	
 		except Exception as err:

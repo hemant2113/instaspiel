@@ -32,6 +32,15 @@ class UserApi(APIView):
 			# if (email.is_valid()) and (password.is_valid()):
 			# 	if not len(request.data.get('password'))>=6:
 			# 		return ApiResponse().error("Please fill minimum password lenght six", 400)
+			# import pdb;pdb.set_trace();
+			# print(type(request.data.get('role')))
+			# print(request.data.get('company'))
+			# import pdb;pdb.set_trace();
+			# if not (int(request.data.get('role'))==3 or not int(request.data.get('role'))==4) and not (request.data.get('company')) :
+			# 	return ApiResponse().error("Please send valid company id",400)  
+
+				# if request.data.get('company')!= "":
+	 
 			user = self.create_user(request)
 			if not(user):
 				return ApiResponse().error("This email is already registered", 400)
@@ -40,8 +49,20 @@ class UserApi(APIView):
 			if not(user_data.is_valid()):
 				return ApiResponse().error(user_data.errors, 400)
 			user_data.save()
-			return ApiResponse().success(user_data.data, 200)
-			# return ApiResponse().error("Invalid email and password", 400)
+			print()
+			email = request.data.get('email')
+			password = request.data.get('password')
+			frm = 'instaspiel@gmail.com'
+			body = "Hello"+request.data.get('first_name')+""+request.data.get('last_name')+"\n We would like to welcome you as a new member of "+user_data['company_name'].value+"\n Username:- "+email+"\n Password:- "+password+""
+			
+			if Email.sendMail("Account created successfully",body,frm,email) is True:
+				return ApiResponse().success(user_data.data, 200)
+			  
+			return ApiResponse().error("Error while sending the email",400) 
+				# except Exception as err:
+				# 	print(err)
+			# 	return ApiResponse().error("Please send valid company id",400)  
+			# return ApiResponse().error("you are not company admin", 400)
 		except Exception as err:
 			print(err)
 			return ApiResponse().error("There is a problem while creating user", 500)
@@ -83,9 +104,9 @@ class UserApi(APIView):
 						return ApiResponse().error("This email is already exist", 400)
 				except Exception as err:
 					print(err)
-		
 				get_data = UserProfile.objects.get(user=user_id)
-				self.overWrite(request, {'user':user_id})
+				RequestOverwrite().overWrite(request, {'user':user_id})
+				print(request.data)
 				User.objects.filter(id = user_id).update(email = request.data.get('email'), username = request.data.get('email')) 
 				update_data = UserSerializer(get_data,data=request.data)
 				if update_data.is_valid():
@@ -194,6 +215,7 @@ class ChangePassword(APIView):
 
 class ForGotPassword(APIView):
 	def post(self,request):
+		print(request.data.get("email"))
 		try:
 			user = User.objects.get(email = request.data.get("email"))
 		except Exception as err:
@@ -205,7 +227,7 @@ class ForGotPassword(APIView):
 		frm = 'instaspiel@gmail.com'
 		body = "Hi there. \n You have requested a new password for your account on Instaspiel.\nYour temporary password is "+password+""
 		if Email.sendMail("Forgot password",body,frm,user.email) is True:
-		    return ApiResponse().success("New password was sent to your inbox",200)    
+		    return ApiResponse().success("New password was sent to your email",200)    
 		return ApiResponse().error("Error while sending the email",500) 
 		
 
