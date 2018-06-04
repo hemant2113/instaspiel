@@ -1,7 +1,7 @@
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
-from app.nurture.serializers import NurtureSerializer,NurtureUrlSerializer
+from app.nurture.serializers import NurtureSerializer,NurtureUrlSerializer,NurtureDetailSerializer
 from django.views.generic import TemplateView
 from django.shortcuts import render,redirect
 from app.nurture.models import Nurture,NurtureUrl
@@ -16,7 +16,7 @@ class NurtureApi(APIView):
 			# user_id = UserProfile.objects.get(user_id = user.id)
 			# print(user.id)
 			# if (user_id.role.id == 3) or (user_id.role.id == 1):
-			nurture_data = NurtureSerializer(data = request.data)
+			nurture_data = NurtureDetailSerializer(data = request.data)
 			if not(nurture_data.is_valid()):
 				return ApiResponse().error(nurture_data.errors,400)
 			nurture_data.save()
@@ -41,13 +41,13 @@ class NurtureApi(APIView):
 		try:
 			if(nurture_id):
 				try:
-					get_data = NurtureSerializer(Nurture.objects.get(is_deleted=False,id=nurture_id))
+					get_data = NurtureDetailSerializer(Nurture.objects.get(is_deleted=False,id=nurture_id))
 				except Exception as err:
 					print(err)	
 					return ApiResponse().error("please provide valid nurture id", 400)
 			else:
 				nurture_data = Nurture.objects.filter(is_deleted=False)
-				get_data = NurtureSerializer(nurture_data, many=True)
+				get_data = NurtureDetailSerializer(nurture_data, many=True)
 			return ApiResponse().success(get_data.data, 200)
 		except Exception as err: 
 			print(err) 
@@ -56,7 +56,7 @@ class NurtureApi(APIView):
 	def put(self,request,nurture_id):
 		try:
 			get_data = Nurture.objects.get(pk=nurture_id)
-			update_data = NurtureSerializer(get_data,data=request.data)
+			update_data = NurtureDetailSerializer(get_data,data=request.data)
 			if update_data.is_valid():
 				update_data.save()
 				if(request.data.get('nurture_url_1')):
@@ -73,10 +73,9 @@ class NurtureApi(APIView):
 					for nurl in request.data.get('nurture_url_2'):
 						nurture_url = NurtureUrl()
 						# NurtureUrl.objects.filter(id = nurl['id']).update(name = nurl['name'], url = nurl['url'])
-						print("===========")
 						print(nurl['name'])
 						print(nurl['url'])
-						if nurl['name']=="" and nurl['url']=="":
+						if not nurl['name'] and not nurl['url']:
 							continue
 						# try:
 						# 	NurtureUrl.objects.get(nurture = nurture.id).update(name = nurl['name'], url = nurl['url'])

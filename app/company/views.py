@@ -7,7 +7,7 @@ from django.shortcuts import render,redirect
 from app.company.models import Company
 from app.lib.response import ApiResponse
 from app.lib.common import RequestOverwrite
-from app.users.serializers import UserSerializer
+from app.users.serializers import ProfileSerializer
 
 class CompanyApi(APIView):
 	def post(self,request):
@@ -74,7 +74,7 @@ class AssignCompanies(APIView):
 
 	def get(self, request, user_id):
 		try:
-			user = UserSerializer(UserProfile.objects.get(user = user_id))
+			user = ProfileSerializer(UserProfile.objects.get(user = user_id))
 			return ApiResponse().success(user.data, 200)
 		except Exception as err:
 			print (err)

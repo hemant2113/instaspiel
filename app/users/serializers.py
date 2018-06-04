@@ -5,13 +5,24 @@ from django.contrib.auth.models import User
 from app.company.serializers import CompanySerializer
 from app.company.models import Company
 
-# class UserSerializer(serializers.ModelSerializer):
-
-# 	class Meta:
-# 		model = User
-# 		fields = ('email','id','password')
-
 class UserSerializer(serializers.ModelSerializer):
+
+	class Meta:
+		model = User
+		fields = ('email','id','password')
+		extra_kwargs = {
+			
+			'email': {
+				'required':True,
+				'error_messages':{
+				'required':"Email field is required"
+				}
+			},
+			
+		}
+
+
+class ProfileSerializer(serializers.ModelSerializer):
 	role_name = serializers.SerializerMethodField("getRoleName")
 	def getRoleName(self,obj):
 		try:

@@ -4,7 +4,7 @@ from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
 from django.http import Http404
-from app.users.serializers import UserSerializer
+from app.users.serializers import ProfileSerializer,UserSerializer
 from app.users.models import UserProfile
 from django.shortcuts import render,redirect
 from django.views.generic import TemplateView
@@ -22,47 +22,24 @@ class UserApi(APIView):
 	
 	def post(self,request):
 		try:
-			# user_token = AccessUserObj().fromToken(request).user
-			# user_id = UserProfile.objects.get(user_id = user_token.id)
-			# print(user_token.id)
-			# if (user_id.role.id == 3) or (user_id.role.id == 1):
-			# email = request.data.get('email')
-			# password = request.data.get('password')
-			# print(email,password)
-			# if (email.is_valid()) and (password.is_valid()):
-			# 	if not len(request.data.get('password'))>=6:
-			# 		return ApiResponse().error("Please fill minimum password lenght six", 400)
-			# import pdb;pdb.set_trace();
-			# print(type(request.data.get('role')))
-			# print(request.data.get('company'))
-			# import pdb;pdb.set_trace();
-			# if not (int(request.data.get('role'))==3 or not int(request.data.get('role'))==4) and not (request.data.get('company')) :
-			# 	return ApiResponse().error("Please send valid company id",400)  
-
-				# if request.data.get('company')!= "":
-	 
+			user_info = UserSerializer(data = request.data)
+			if not user_info.is_valid():
+				return ApiResponse().error(user_info.errors,400)
 			user = self.create_user(request)
 			if not(user):
-				return ApiResponse().error("This email is already registered", 400)
+				return ApiResponse().error("This email is already exists", 400)
 			RequestOverwrite().overWrite(request, {'user':user.id})
-			user_data = UserSerializer(data=request.data)
+			user_data = ProfileSerializer(data=request.data)
 			if not(user_data.is_valid()):
 				return ApiResponse().error(user_data.errors, 400)
 			user_data.save()
-			print()
 			email = request.data.get('email')
 			password = request.data.get('password')
 			frm = 'instaspiel@gmail.com'
-			body = "Hello"+request.data.get('first_name')+""+request.data.get('last_name')+"\n We would like to welcome you as a new member of "+user_data['company_name'].value+"\n Username:- "+email+"\n Password:- "+password+""
-			
+			body = "Hello"+" "+request.data.get('first_name')+" "+request.data.get('last_name')+"\n We would like to welcome you as a new member of "+user_data['company_name'].value+"\n Username:- "+email+"\n Password:- "+password+""
 			if Email.sendMail("Account created successfully",body,frm,email) is True:
 				return ApiResponse().success(user_data.data, 200)
-			  
-			return ApiResponse().error("Error while sending the email",400) 
-				# except Exception as err:
-				# 	print(err)
-			# 	return ApiResponse().error("Please send valid company id",400)  
-			# return ApiResponse().error("you are not company admin", 400)
+			return ApiResponse().error("Error while sending the email", 400) 
 		except Exception as err:
 			print(err)
 			return ApiResponse().error("There is a problem while creating user", 500)
@@ -82,13 +59,13 @@ class UserApi(APIView):
 		try:
 			if(user_id):
 				try:
-					user_data = UserSerializer(UserProfile.objects.get(is_deleted=False, user=user_id))
+					user_data = ProfileSerializer(UserProfile.objects.get(is_deleted=False, user=user_id))
 				except Exception as err:
 					print(err)	
 					return ApiResponse().error("please provide valid user id", 400)
 			else:
 				userData = UserProfile.objects.filter(is_deleted=False)
-				user_data = UserSerializer(userData, many=True)
+				user_data = ProfileSerializer(userData, many=True)
 			return ApiResponse().success(user_data.data, 200)
 		except Exception as err: 
 			print(err) 
@@ -101,14 +78,14 @@ class UserApi(APIView):
 				try:
 					user = User.objects.get(email=request.data.get('email'))
 					if int(user_id) != int(user.id):
-						return ApiResponse().error("This email is already exist", 400)
+						return ApiResponse().error("This email is already exists", 400)
 				except Exception as err:
 					print(err)
 				get_data = UserProfile.objects.get(user=user_id)
 				RequestOverwrite().overWrite(request, {'user':user_id})
 				print(request.data)
 				User.objects.filter(id = user_id).update(email = request.data.get('email'), username = request.data.get('email')) 
-				update_data = UserSerializer(get_data,data=request.data)
+				update_data = ProfileSerializer(get_data,data=request.data)
 				if update_data.is_valid():
 					update_data.save()
 					return ApiResponse().success(update_data.data, 200)
@@ -132,7 +109,7 @@ class UserCompanyApi(APIView):
 		try:
 			if(company_id):
 				userprofile = UserProfile.objects.filter(is_deleted=False, company=company_id)
-				user_data = UserSerializer(userprofile, many=True)
+				user_data = ProfileSerializer(userprofile, many=True)
 			else:
 				return ApiResponse().error("please send company id", 400)
 			return ApiResponse().success(user_data.data, 200)
@@ -148,19 +125,22 @@ class LoginApi(APIView):
 			# if not len(request.data.get('password'))>=6:
 			# 	return ApiResponse().error("Required maximum password lenght is six", 400)
 			if request.data.get('email') and request.data.get('password'):
+				user = UserSerializer(data = request.data)
+				if not user.is_valid():
+					return ApiResponse().error(user.errors,400)
 				try:
 					auth_user = authenticate(username=request.data.get('email'), password=request.data.get('password'))
 				except Exception as err:
 					print(err)
 					return ApiResponse().error("Invalid username or password",400)			
 				if not auth_user:
-					return ApiResponse().error("invalid email or password", 400)	
+					return ApiResponse().error("invalid username or password", 400)	
 	
 				token,create = Token.objects.get_or_create(user_id=auth_user.id)	
 				if(auth_user):
 					try:
 						userprofile = UserProfile.objects.get(user_id=auth_user.id, is_deleted=False)
-						user_data = UserSerializer(userprofile)
+						user_data = ProfileSerializer(userprofile)
 					except Exception as err:
 						print(err)	
 						return ApiResponse().error("invalid email or password", 400)
@@ -215,7 +195,6 @@ class ChangePassword(APIView):
 
 class ForGotPassword(APIView):
 	def post(self,request):
-		print(request.data.get("email"))
 		try:
 			user = User.objects.get(email = request.data.get("email"))
 		except Exception as err:
