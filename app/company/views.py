@@ -8,7 +8,6 @@ from app.company.models import Company
 from app.lib.response import ApiResponse
 from app.lib.common import RequestOverwrite
 from app.users.serializers import ProfileSerializer
-from django.contrib.auth import authenticate
 
 class CompanyApi(APIView):
 	def post(self,request):
@@ -103,5 +102,5 @@ class GetCompanyByDomain(APIView):
 			return ApiResponse().success(company_data.data, 200)
 		except Exception as err:
 			print(err)
-			return ApiResponse().error("Error while getting the details", 400)
+			return ApiResponse().error("There is no company behalf of this domain", 400)
 	
