@@ -1,8 +1,9 @@
 from rest_framework import serializers
-from app.company.models import Company
-from app.company.models import AssignCompanies
+from app.company.models import Company,AssignCompanies
 from app.nurture.models import Nurture
-from app.nurture.serializers import NurtureSerializer,NurtureDataSerializer
+from app.nurture.serializers import NurtureSerializer,NurtureUrlSerializer
+
+
 
 class CompanySerializer(serializers.ModelSerializer):
 	
@@ -28,22 +29,22 @@ class CompanySerializer(serializers.ModelSerializer):
 		# 		'required':"Please fill this field",
 		# 		}
 		# 	},
-		}		
+		}	
+
 
 class CompanyDetailSerializer(serializers.ModelSerializer):
 	nurture_data = serializers.SerializerMethodField("getNurtureData")
 	def getNurtureData(self, obj):
 		try:
-			return NurtureSerializer(Nurture.objects.filter(is_deleted=False,company=obj.id)[0]).data
+			return NurtureSerializer(Nurture.objects.filter(is_deleted=False,company=obj.id),many=True).data
 		except Exception as err :
 			print(err)
-			return None	
+			return None
 
 	class Meta:
 		model = Company
 		fields = ('id','name','nurture_data','logo','favicon','url','header_script','body_script','is_deleted','created_at','updated_at')
-
-
+	
 class AssignCompanySerializer(serializers.ModelSerializer):
 	
 	class Meta:

@@ -8,6 +8,7 @@ from app.company.models import Company
 from app.lib.response import ApiResponse
 from app.lib.common import RequestOverwrite
 from app.users.serializers import ProfileSerializer
+from django.contrib.auth import authenticate
 
 class CompanyApi(APIView):
 	def post(self,request):
@@ -93,14 +94,14 @@ class UpdatedCountCompany(APIView):
 			return ApiResponse().error("Error while getting total count or updated company info", 500)
 
 
-class GetCompanyByName(APIView):
+class GetCompanyByDomain(APIView):
 	def post(self,request):
 	
 		try:
-			company = Company.objects.filter(is_deleted = False, name__istartswith = request.data.get('name'))[0]
+			company = Company.objects.filter(is_deleted = False, url__istartswith = request.data.get('domain_name'))[0]
 			company_data = CompanyDetailSerializer(company)
 			return ApiResponse().success(company_data.data, 200)
 		except Exception as err:
 			print(err)
-			return ApiResponse().error("Error while getting the details", 500)
+			return ApiResponse().error("Error while getting the details", 400)
 	
