@@ -26,7 +26,7 @@ class NurtureApi(APIView):
 				for nurl in request.data.get('nurture_url'):
 					nurture_url = NurtureUrl()
 					nurture_url.name = nurl['name'] 
-					nurture_url.url = nurl['url'] 
+					nurture_url.url = nurl['url']
 					nurture_url.nurture = nurture
 					urlData.append(nurture_url) 
 
@@ -122,11 +122,15 @@ class NurtureDataByCompanyId(APIView):
 class NurtureUrlApi(APIView):
 	def post(self,request):
 		try:
+			if ".pdf" in request.data.get('url'):
+				nurture_url = "https://docs.google.com/viewer?url= "+request.data.get('url')+"&embedded=true"
+				RequestOverwrite().overWrite(request, {'url':nurture_url})
 			nurture_data = NurtureUrlSerializer(data=request.data)
 			if not(nurture_data.is_valid()):
 				return ApiResponse().error(nurture_data.errors, 400)
 			nurture_data.save()
-			return ApiResponse().success("Nurtureurl added successfully", 200)
+			print(nurture_data.data)
+			return ApiResponse().success(nurture_data.data, 200)
 		except Exception as err:
 			print(err)
 			return ApiResponse().error("Error while adding Nurtureurl", 500)
@@ -142,6 +146,7 @@ class NurtureUrlApi(APIView):
 			else:
 				nurture_data = NurtureUrl.objects.filter(is_deleted=False)
 				get_data = NurtureUrlSerializer(nurture_data,many=True)
+			
 			return ApiResponse().success(get_data.data, 200)
 		except Exception as err: 
 			print(err) 
@@ -183,3 +188,5 @@ class UrlByNurture(APIView):
 		except Exception as err: 
 			print(err) 
 			return ApiResponse().error("NurtureUrl matching query does not exist", 500)
+
+
