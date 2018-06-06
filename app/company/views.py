@@ -94,10 +94,10 @@ class UpdatedCountCompany(APIView):
 
 
 class GetCompanyByDomain(APIView):
-	def post(self,request):
 	
+	def post(self,request):
 		try:
-			company = Company.objects.filter(is_deleted = False, url__istartswith = request.data.get('domain_name'))[0]
+			company = Company.objects.filter(is_deleted = False, url = request.data.get('domain_name'))[0]
 			company_data = CompanyDetailSerializer(company)
 			return ApiResponse().success(company_data.data, 200)
 		except Exception as err:
