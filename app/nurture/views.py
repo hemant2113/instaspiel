@@ -123,7 +123,7 @@ class NurtureUrlApi(APIView):
 	def post(self,request):
 		try:
 			if ".pdf" in request.data.get('url'):
-				nurture_url = "https://docs.google.com/viewer?url= "+request.data.get('url')+"&embedded=true"
+				nurture_url = "https://docs.google.com/viewer?url="+request.data.get('url')+"&embedded=true"
 				RequestOverwrite().overWrite(request, {'url':nurture_url})
 			nurture_data = NurtureUrlSerializer(data=request.data)
 			if not(nurture_data.is_valid()):
