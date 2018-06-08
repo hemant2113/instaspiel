@@ -4,10 +4,10 @@ from django.contrib.auth.models import User
 from django.conf import settings
 
 class Company(models.Model):
-	name = models.CharField(unique=True,db_index=True, max_length=255,error_messages={'unique':"This name already exists"})
+	name = models.CharField(db_index=True, max_length=255)
 	logo = models.TextField(null=True,blank=True)
 	favicon = models.TextField(null=True,blank=True)
-	url = models.TextField(unique=True,db_index=True,error_messages={'unique':"This url already exists"},null=True,blank=True)
+	url = models.TextField(db_index=True,blank=True)
 	header_script = models.TextField(null=True,blank=True)
 	body_script = models.TextField(null=True,blank=True)
 	is_deleted = models.BooleanField(default=False)

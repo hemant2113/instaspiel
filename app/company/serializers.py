@@ -2,7 +2,7 @@ from rest_framework import serializers
 from app.company.models import Company,AssignCompanies
 from app.nurture.models import Nurture
 from app.nurture.serializers import NurtureSerializer,NurtureUrlSerializer
-
+from django.core.exceptions import ValidationError
 
 
 class CompanySerializer(serializers.ModelSerializer):
@@ -31,6 +31,25 @@ class CompanySerializer(serializers.ModelSerializer):
 		# 	},
 		}	
 
+	def validate_url(self,url):
+		url = url.strip()
+		company = Company.objects.filter(url__iexact = url.lower(), is_deleted = False)
+		if (self.context) and (self.context['company_id'])  is not None:
+			company = company.exclude(id = self.context['company_id'])
+		company.exists()
+		if company is True or len(company)>0:
+			raise  ValidationError('This url already exists.', code='invalid')
+		return url	
+
+	def validate_name(self, name):
+		name = name.strip()
+		company = Company.objects.filter(name__iexact = name.lower(), is_deleted = False)
+		if (self.context) and (self.context['company_id'])  is not None:
+			company = company.exclude(id = self.context['company_id'])
+		company.exists()
+		if company is True or len(company)>0:
+			raise  ValidationError('This company name already exists.', code='invalid')
+		return name		
 
 class CompanyDetailSerializer(serializers.ModelSerializer):
 	nurture_data = serializers.SerializerMethodField("getNurtureData")

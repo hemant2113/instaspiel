@@ -13,17 +13,16 @@ class CompanyApi(APIView):
 	def post(self,request):
 		try:
 			company_data = CompanySerializer(data=request.data)
-			if not(company_data.is_valid()):
-				return ApiResponse().error(company_data.errors, 400)
+			if not company_data.is_valid():
+				return ApiResponse().error(company_data.errors,400)
 			company_data.save()
-			return ApiResponse().success("Company added successfully", 200)
+			return ApiResponse().success(company_data.data,200)
 		except Exception as err:
 			print(err)
 			return ApiResponse().error("Error", 500)
 
 	def get(self,request,company_id=None):
 		try:
-
 			if(company_id):
 				try:
 					get_data = CompanySerializer(Company.objects.get(is_deleted=False, id=company_id))
@@ -41,7 +40,7 @@ class CompanyApi(APIView):
 	def put(self,request,company_id):
 		try:
 			get_data = Company.objects.get(pk=company_id)
-			update_data = CompanySerializer(get_data,data=request.data)
+			update_data = CompanySerializer(get_data,data=request.data,context = {'company_id':company_id})
 			if update_data.is_valid():
 				update_data.save()
 				return ApiResponse().success("Company details updated Successfully", 200)
