@@ -5,7 +5,7 @@ from app.company.models import Company
 class Nurture(models.Model):
 
 	company = models.ForeignKey(Company)
-	name = models.CharField(max_length=45)
+	name = models.CharField(max_length=500)
 	description = models.TextField(null=True,blank=True)
 	is_deleted = models.BooleanField(default=False)
 	created_at = models.DateTimeField(auto_now_add=True)
@@ -18,7 +18,7 @@ class Nurture(models.Model):
 class NurtureUrl(models.Model):
 
 	nurture = models.ForeignKey(Nurture)
-	name = models.CharField(max_length=255,null=True,blank=True)
+	name = models.CharField(max_length=500,null=True,blank=True)
 	url = models.TextField(null=True,blank=True)
 	is_deleted = models.BooleanField(default=False)
 	created_at = models.DateTimeField(default=datetime.now)
