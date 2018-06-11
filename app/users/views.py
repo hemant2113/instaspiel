@@ -224,7 +224,7 @@ class CheckEmail(APIView):
 			return ApiResponse().success(True, 200)
 		except Exception as err:
 			print(err)
-			return ApiResponse().error(False, 200)
+			return ApiResponse().success(False, 200)
 
 class ChangePassword(APIView):
 
@@ -286,13 +286,10 @@ class UserRole(APIView):
 # 	def post(self,request):
 # 		try:
 # 			user = AccessUserObj().fromToken(request).user
-# 			if not request.data.get("current_password"):
-# 				return ApiResponse().error("Please enter valid current password.",400)
-# 			if UserProfile.objects.filter(is_deleted=True, user=user):
-# 				return ApiResponse().success("User does not exist",400) 
-# 			if request.data.get("current_password") is not None:
-# 				if authenticate(username = user, password = request.data.get("current_password")) is None:
-# 					return ApiResponse().error("Invalid current password entered.",400)
-# 			return ApiResponse().success("New password was sent to your email",200) 
+# 			print(user_mail)
+# 			user = User.objects.get(password=request.data.get('password'))
+# 			UserProfile.objects.filter(user=user.id, is_deleted=False)
+# 			return ApiResponse().success(True, 200)
 # 		except Exception as err:
-# 			return ApiResponse().error("Error", 500)
+# 			print(err)
+# 			return ApiResponse().success(False, 200)
