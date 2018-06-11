@@ -202,7 +202,7 @@ class LoginApi(APIView):
 			print(err)
 			return ApiResponse().error("Error while login", 500)
 
-class LogOut(APIView):
+class LogOut(APIView): 
 	
 	def post(self,request):
 		try:
@@ -215,13 +215,22 @@ class LogOut(APIView):
 			print(err)
 			return ApiResponse().error('Error', 500)
 
+class CheckEmail(APIView):
+	
+	def post(self,request):
+		try:
+			user = User.objects.get(username=request.data.get('email'))
+			UserProfile.objects.filter(user=user.id, is_deleted=False)
+			return ApiResponse().success(True, 200)
+		except Exception as err:
+			print(err)
+			return ApiResponse().error(False, 200)
+
 class ChangePassword(APIView):
 
 	def post(self,request):
 		try:
 			user = AccessUserObj().fromToken(request).user
-			print(user)
-			print(request.data.get("old_password"))
 			if not request.data.get("old_password"):
 				return ApiResponse().error("Please enter current password.",400)
 			if UserProfile.objects.filter(is_deleted=True, user=user):
@@ -284,5 +293,6 @@ class UserRole(APIView):
 # 			if request.data.get("current_password") is not None:
 # 				if authenticate(username = user, password = request.data.get("current_password")) is None:
 # 					return ApiResponse().error("Invalid current password entered.",400)
+# 			return ApiResponse().success("New password was sent to your email",200) 
 # 		except Exception as err:
 # 			return ApiResponse().error("Error", 500)
