@@ -5,6 +5,7 @@ app_name='users'
 
 urlpatterns = [
 	url(r'^userrole$',views.UserRole.as_view()),
+	url(r'^currentpassword$',views.CurrentPassword.as_view()),
 	url(r'^checkemail$',views.CheckEmail.as_view()),
 	url(r'^forgotpassword$',views.ForGotPassword.as_view()),
 	url(r'^changepassword$',views.ChangePassword.as_view()),

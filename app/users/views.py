@@ -282,14 +282,18 @@ class UserRole(APIView):
 		except Exception as err:
 			return ApiResponse().error("Error", 500) 
 
-# class CurrentPassword(APIView):
-# 	def post(self,request):
-# 		try:
-# 			user = AccessUserObj().fromToken(request).user
-# 			print(user_mail)
-# 			user = User.objects.get(password=request.data.get('password'))
-# 			UserProfile.objects.filter(user=user.id, is_deleted=False)
-# 			return ApiResponse().success(True, 200)
-# 		except Exception as err:
-# 			print(err)
-# 			return ApiResponse().success(False, 200)
+class CurrentPassword(APIView):
+	def post(self,request):
+		try:
+			user = AccessUserObj().fromToken(request).user
+			if not request.data.get("password"):
+				return ApiResponse().error("Please enter valid current password.",400)
+			if UserProfile.objects.filter(is_deleted=True, user=user):
+				return ApiResponse().success("User does not exist",400) 
+			if request.data.get("password") is not None:
+				if authenticate(username = user, password = request.data.get("password")) is None:
+					return ApiResponse().error("Invalid current password entered.",400)
+			return ApiResponse().success(True, 200)
+		except Exception as err:
+			print(err)
+			return ApiResponse().success(False, 200)
