@@ -16,6 +16,7 @@ class NurtureApi(APIView):
 			# user_id = UserProfile.objects.get(user_id = user.id)
 			# print(user.id)
 			# if (user_id.role.id == 3) or (user_id.role.id == 1):
+			# import pdf;pdf.get_trace();
 			nurture_data = NurtureDetailSerializer(data = request.data)
 			if not(nurture_data.is_valid()):
 				return ApiResponse().error(nurture_data.errors,400)
@@ -26,10 +27,13 @@ class NurtureApi(APIView):
 				for nurl in request.data.get('nurture_url'):
 					nurture_url = NurtureUrl()
 					nurture_url.name = nurl['name'] 
-					nurture_url.url = nurl['url']
+					if nurl['url'] and ".pdf" in nurl['url']:
+						nurture_url.url = "https://docs.google.com/viewer?url="+nurl['url']+"&embedded=true"		
+					else:
+						nurture_url.url = nurl['url']
 					nurture_url.nurture = nurture
 					urlData.append(nurture_url) 
-
+					print(urlData)
 				NurtureUrl.objects.bulk_create(urlData)
 			return ApiResponse().success("Nurture added successfully", 200)
 			# return ApiResponse().error("You are not authorised to create nurture", 400)
@@ -72,18 +76,15 @@ class NurtureApi(APIView):
 					nurture = Nurture.objects.get(id = nurture_id)
 					for nurl in request.data.get('nurture_url_2'):
 						nurture_url = NurtureUrl()
-						# NurtureUrl.objects.filter(id = nurl['id']).update(name = nurl['name'], url = nurl['url'])
-						print(nurl['name'])
-						print(nurl['url'])
 						if not nurl['name'] and not nurl['url']:
 							continue
-						# try:
-						# 	NurtureUrl.objects.get(nurture = nurture.id).update(name = nurl['name'], url = nurl['url'])
-						# 	continue
-						# except Exception as err:
-						# 	print(err)	
+						if nurl['url'] and ".pdf" in nurl['url']:
+							nurture_url.url = "https://docs.google.com/viewer?url="+nurl['url']+"&embedded=true"		
+						else:
+							nurture_url.url = nurl['url']
 						nurture_url.name = nurl['name'] 
-						nurture_url.url = nurl['url'] 
+						print(nurture_url.name)
+						# nurture_url.url = nurl['url'] 
 						nurture_url.nurture = nurture
 						urlData.append(nurture_url) 
 					NurtureUrl.objects.bulk_create(urlData)
