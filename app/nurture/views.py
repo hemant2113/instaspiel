@@ -27,10 +27,11 @@ class NurtureApi(APIView):
 				for nurl in request.data.get('nurture_url'):
 					nurture_url = NurtureUrl()
 					nurture_url.name = nurl['name'] 
-					if nurl['url'] and ".pdf" in nurl['url']:
-						nurture_url.url = "https://docs.google.com/viewer?url="+nurl['url']+"&embedded=true"		
-					else:
-						nurture_url.url = nurl['url']
+					# if nurl['url'] and ".pdf" in nurl['url']:
+					# 	nurture_url.url = "https://docs.google.com/viewer?url="+nurl['url']+"&embedded=true"		
+					# else:
+					# 	nurture_url.url = nurl['url']
+					nurture_url.url = nurl['url'] 
 					nurture_url.nurture = nurture
 					urlData.append(nurture_url) 
 					print(urlData)
@@ -75,16 +76,16 @@ class NurtureApi(APIView):
 					urlData = []
 					nurture = Nurture.objects.get(id = nurture_id)
 					for nurl in request.data.get('nurture_url_2'):
+						# print(nurl)
 						nurture_url = NurtureUrl()
 						if not nurl['name'] and not nurl['url']:
 							continue
-						if nurl['url'] and ".pdf" in nurl['url']:
-							nurture_url.url = "https://docs.google.com/viewer?url="+nurl['url']+"&embedded=true"		
-						else:
-							nurture_url.url = nurl['url']
+						# if nurl['url'] and ".pdf" in nurl['url']:
+						# 	nurture_url.url ="https://docs.google.com/viewer?url="+nurl['url']+"&embedded=true"		
+						# else:
+						# 	nurture_url.url = nurl['url']
 						nurture_url.name = nurl['name'] 
-						print(nurture_url.name)
-						# nurture_url.url = nurl['url'] 
+						nurture_url.url = nurl['url'] 
 						nurture_url.nurture = nurture
 						urlData.append(nurture_url) 
 					NurtureUrl.objects.bulk_create(urlData)
