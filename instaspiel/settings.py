@@ -54,8 +54,8 @@ EMAIL_HOST_USER = 'instaspiel@gmail.com'
 EMAIL_HOST_PASSWORD = 'FGTRY23@#$'
 EMAIL_PORT = 587
 
-AWS_S3_ACCESS_KEY_ID = 'AKIAJH743U7OUMJDEGWA' # enter your access key id
-AWS_S3_SECRET_ACCESS_KEY = 'qf98ugrLt9ZBq5G60MeWh4Kg9qAiyTZMfeJm0MLu' # enter your secret access key
+AWS_S3_ACCESS_KEY_ID = 'AKIAILKWKQEMYKMO2TGQ' # enter your access key id
+AWS_S3_SECRET_ACCESS_KEY = 'RZUwlXR31C71PLzosS2RkJWmu3NT1Liuf+irOYX6' # enter your secret access key
 AWS_STORAGE_BUCKET_NAME = 'instaspiel'
 AWS_MAIN_DIR = 'stage'
 AWS_S3_HOST = 's3.us-east-2.amazonaws.com'
