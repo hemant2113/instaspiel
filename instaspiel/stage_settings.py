@@ -169,5 +169,5 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 TEMPLATE_PATH = os.path.join(BASE_DIR, 'templates')
 
 MEDIA_URL = ''
-MEDIA_ROOT = os.path.join(BASE_DIR,'/home/hp/projects/django/instaspiel/instsapiel/static')
+# MEDIA_ROOT = os.path.join(BASE_DIR,'/home/hp/projects/django/instaspiel/instsapiel/static')
 
