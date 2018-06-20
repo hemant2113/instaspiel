@@ -57,7 +57,7 @@ EMAIL_PORT = 587
 AWS_S3_ACCESS_KEY_ID = 'AKIAILKWKQEMYKMO2TGQ' # enter your access key id
 AWS_S3_SECRET_ACCESS_KEY = 'RZUwlXR31C71PLzosS2RkJWmu3NT1Liuf+irOYX6' 
 AWS_STORAGE_BUCKET_NAME = 'instaspiel'
-AWS_MAIN_DIR = 'stage'
+AWS_MAIN_DIR = 'dev'
 AWS_S3_HOST = 's3.us-east-2.amazonaws.com'
 AWS_BUCKET_URL = 's3.us-east-2.amazonaws.com/instaspiel'
 
@@ -102,10 +102,10 @@ WSGI_APPLICATION = 'instaspiel.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME':'instaspiel_stage_db',
-        'USER':'instaspiel_stage_db',
-        'PASSWORD':'z>9v=!!Ar97K9\Rm',
-        'HOST':'instaspiel-stage-db.ca6hezdaqdke.us-east-2.rds.amazonaws.com',
+        'NAME':'instaspiel_dev_db',
+        'USER':'instaspiel_dev_db',
+        'PASSWORD':'ThRjvzhNWQ4gKA9B',
+        'HOST':'instaspiel-dev-db.ca6hezdaqdke.us-east-2.rds.amazonaws.com',
         'PORT':'5432',
        
     }
