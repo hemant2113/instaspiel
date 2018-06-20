@@ -175,13 +175,13 @@ class LoginApi(APIView):
 				if not user.is_valid():
 					return ApiResponse().error(user.errors,400)
 				try:
-					auth_user = authenticate(username=request.data.get('email'), password=request.data.get('password'))
+					user_email = User.objects.get(email=request.data.get('email'))
+					auth_user = authenticate(username=user_email,password=request.data.get('password'))
 				except Exception as err:
 					print(err)
-					return ApiResponse().error("Invalid username or password",400)			
+					return ApiResponse().error("Invalid username or password", 400)		
 				if not auth_user:
 					return ApiResponse().error("invalid username or password", 400)	
-	
 				token,create = Token.objects.get_or_create(user_id=auth_user.id)	
 				if(auth_user):
 					try:
