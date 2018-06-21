@@ -31,9 +31,10 @@ class Command(BaseCommand):
 			if(UserProfile.objects.all().count() > 0):
 				return "Data has already exists in db"
 		except:
-			pass		
-		email = "admin6@gmail.com"
-		user = User.objects.create_user(username=email,email=email,password=12345)
+			pass
+
+		email = "admin@gmail.com"
+		user = User.objects.create_user(username=email,email=email,password=123456)
 		userProfile = UserProfile(first_name="admin",role=Role.objects.get(id=1),last_name="admin",status=True,user = user)
 		userProfile.save()
 
