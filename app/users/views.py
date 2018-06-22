@@ -24,19 +24,6 @@ class UserApi(APIView):
 		try:
 			# user_token = AccessUserObj().fromToken(request).user
 			# user_id = UserProfile.objects.get(user_id = user_token.id)
-			# print(user_token.id)
-			# if (user_id.role.id == 3) or (user_id.role.id == 1):
-			# email = request.data.get('email')
-			# password = request.data.get('password')
-			# print(email,password)
-			# if (email.is_valid()) and (password.is_valid()):
-			# 	if not len(request.data.get('password'))>=6:
-			# 		return ApiResponse().error("Please fill minimum password lenght six", 400)
-			# print(type(request.data.get('role')))
-			# print(request.data.get('company'))
-			# print("==========")
-			# import pdb;pdb.set_trace();
-			# if int(request.data.get('role'))==3 or int(request.data.get('role'))==4 and request.data.get('company'): 
 			user_info = UserSerializer(data = request.data)
 			if not user_info.is_valid():
 				return ApiResponse().error(user_info.errors,400)
@@ -51,41 +38,22 @@ class UserApi(APIView):
 			email = request.data.get('email')
 			password = request.data.get('password')
 			frm = 'instaspiel@gmail.com'
-			try:
-				body = "Hello"+" "+request.data.get('first_name')+" "+request.data.get('last_name')+"\n We would like to welcome you as a new member of "+user_data['company_name'].value+"\n Username:- "+email+"\n Password:- "+password+""
-
-				if Email.sendMail("Account created successfully",body,frm,email) is True:
-					return ApiResponse().success(user_data.data, 200)
-				return ApiResponse().error("Error while sending the email", 400)
-			except Exception as err:
-				print(err)
-				return ApiResponse().error("Please send valid company id",400)
-			# elif int(request.data.get('role'))==1 or int(request.data.get('role'))==5 or int(request.data.get('role'))==2 and not (request.data.get('company')): 
-			# 	user_info = UserSerializer(data = request.data)
-			# 	if not user_info.is_valid():
-			# 		return ApiResponse().error(user_info.errors,400)
-			# 	user = self.create_user(request)
-			# 	if not(user):
-			# 		return ApiResponse().error("This email is already exists", 400)
-			# 	RequestOverwrite().overWrite(request, {'user':user.id})
-			# 	user_data = ProfileSerializer(data=request.data)
-			# 	# print(user_data)
-			# 	if not(user_data.is_valid()):
-			# 		return ApiResponse().error(user_data.errors, 400)
-			# 	user_data.save()	
-			# 	email = request.data.get('email')
-			# 	password = request.data.get('password')
-			# 	frm = 'instaspiel@gmail.com'
-			# 	body = "Hello"+" "+request.data.get('first_name')+" "+request.data.get('last_name')+"\n We would like to welcome you as a new member"+""+"\n Username:- "+email+"\n Password:- "+password+""
-			# 	if Email.sendMail("Account created successfully",body,frm,email) is True:
-			# 		return ApiResponse().success(user_data.data, 200)
-			# 	return ApiResponse().error("Error while sending the email", 400) 
-			# return ApiResponse().error("Please send valid role id",400)
-			# return ApiResponse().success(user_data.data, 200)
-			# except Exception as err:
-			# 	print(err)
-			# return ApiResponse().error("Please send valid company id",400)  
-		# return ApiResponse().error("you are not company admin", 400)
+			if int(request.data.get('role'))==3 or int(request.data.get('role'))==4:
+				if request.data.get('company'): 
+					
+					body = "Hello"+" "+request.data.get('first_name')+" "+request.data.get('last_name')+"\n We would like to welcome you as a new member of "+user_data['company_name'].value+"\n Username:- "+email+"\n Password:- "+password+""
+					if Email.sendMail("Account created successfully",body,frm,email) is True:
+						return ApiResponse().success(user_data.data, 200)
+					return ApiResponse().error("Error while sending the email", 400)
+					
+				return ApiResponse().error("Please send valid company id", 400)
+			else:
+				if not request.data.get('company'): 
+					body = "Hello"+" "+request.data.get('first_name')+" "+request.data.get('last_name')+"\n We would like to welcome you as a new member"+""+"\n Username:- "+email+"\n Password:- "+password+""
+					if Email.sendMail("Account created successfully",body,frm,email) is True:
+						return ApiResponse().success(user_data.data, 200)
+					return ApiResponse().error("Error while sending the email", 400) 
+			return ApiResponse().error("For this role id do not provide company id",400)
 		except Exception as err:
 			print(err)
 			return ApiResponse().error("There is a problem while creating user", 500)
