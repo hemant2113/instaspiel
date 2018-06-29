@@ -98,7 +98,7 @@ class NurtureUrlSerializer(serializers.ModelSerializer):
 	
 	class Meta:
 		model = NurtureUrl
-		fields = ('id','name','url','nurture','is_deleted','created_at','updated_at')
+		fields = ('id','name','url','nurture','doc_script','is_deleted','created_at','updated_at')
 		extra_kwargs = {
 			'url': {
 				'required':True,
