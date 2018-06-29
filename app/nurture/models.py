@@ -20,6 +20,7 @@ class NurtureUrl(models.Model):
 	nurture = models.ForeignKey(Nurture)
 	name = models.CharField(max_length=500,null=True,blank=True)
 	url = models.TextField(null=True,blank=True)
+	doc_script = models.TextField(null=True,blank=True)
 	is_deleted = models.BooleanField(default=False)
 	created_at = models.DateTimeField(default=datetime.now)
 	updated_at = models.DateTimeField(auto_now=True)
