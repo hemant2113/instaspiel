@@ -7,13 +7,13 @@ class NurtureSerializer(serializers.ModelSerializer):
 	def getNurtureUrl(self, obj):
 		try:
 			return NurtureUrlSerializer(NurtureUrl.objects.filter(is_deleted= False,nurture=obj.id)[:5], many=True).data
-		except Exception as err :
+		except Exception as err:
 			print(err)
 			return None	
 	
 	class Meta:
 		model = Nurture
-		fields = ('id','name','company','nurture_url','description','is_deleted','created_at','updated_at')
+		fields = ('id','name','company','nurture_name_show','nurture_url','description','is_deleted','created_at','updated_at')
 		extra_kwargs = {
 			'name': {
 				'required':True,
@@ -47,7 +47,7 @@ class NurtureDetailSerializer(serializers.ModelSerializer):
 	
 	class Meta:
 		model = Nurture
-		fields = ('id','name','company','nurture_url','description','is_deleted','created_at','updated_at')
+		fields = ('id','name','company','nurture_url','nurture_name_show','description','is_deleted','created_at','updated_at')
 		extra_kwargs = {
 			'name': {
 				'required':True,
@@ -98,7 +98,7 @@ class NurtureUrlSerializer(serializers.ModelSerializer):
 	
 	class Meta:
 		model = NurtureUrl
-		fields = ('id','name','url','nurture','doc_script','is_deleted','created_at','updated_at')
+		fields = ('id','name','url','nurture','url_name_show','doc_script','is_deleted','created_at','updated_at')
 		extra_kwargs = {
 			'url': {
 				'required':True,

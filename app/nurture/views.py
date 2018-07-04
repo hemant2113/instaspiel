@@ -8,8 +8,9 @@ from app.nurture.models import Nurture,NurtureUrl
 from app.lib.response import ApiResponse
 from app.lib.common import AccessUserObj, RequestOverwrite
 from app.users.models import UserProfile
-from rest_framework.decorators import authentication_classes, permission_classes
-from app.users.permissions import IsAuthenticatedOrCreate
+import re
+# from rest_framework.decorators import authentication_classes, permission_classes
+# from app.users.permissions import IsAuthenticatedOrCreate
 
 
 class NurtureApi(APIView):
@@ -20,6 +21,10 @@ class NurtureApi(APIView):
 			# user_id = UserProfile.objects.get(user_id = user.id)
 			# print(user.id)
 			# if (user_id.role.id == 3) or (user_id.role.id == 1):
+
+			if request.data.get('name'):
+				nurture_name = re.sub(r'\W+', '-', request.data.get('name').strip())
+				RequestOverwrite().overWrite(request, {'nurture_name_show':nurture_name})
 			nurture_data = NurtureDetailSerializer(data = request.data)
 			if not(nurture_data.is_valid()):
 				return ApiResponse().error(nurture_data.errors,400)
@@ -27,16 +32,19 @@ class NurtureApi(APIView):
 			if(request.data.get('nurture_url')):
 				urlData = []
 				nurture = Nurture.objects.get(id = nurture_data.data.get('id'))
-
 				for nurl in request.data.get('nurture_url'):		
 					nurture_url = NurtureUrl()
-					nurture_url.name = nurl['name'] 
+					
+					if nurl['name']:
+						url_name = re.sub(r'\W+', '-', nurl['name'].strip())
+						nurture_url.url_name_show = url_name
+					nurture_url.name = nurl['name'].strip()
 					# if nurl['url'] and ".pdf" in nurl['url']:
 					# 	nurture_url.url = "https://docs.google.com/viewer?url="+nurl['url']+"&embedded=true"		
 					# else:
 					# 	nurture_url.url = nurl['url']
-					nurture_url.url = nurl['url']
-					nurture_url.doc_script = nurl['doc_script'] if nurl['doc_script'] else None 
+					nurture_url.url = nurl['url'].strip()
+					nurture_url.doc_script = nurl['doc_script'].strip() if nurl['doc_script'] else None 
 					nurture_url.nurture = nurture
 					urlData.append(nurture_url) 
 				NurtureUrl.objects.bulk_create(urlData)
@@ -70,8 +78,18 @@ class NurtureApi(APIView):
 				update_data.save()
 				if(request.data.get('nurture_url_1')):
 					for nurl in request.data.get('nurture_url_1'):
+						# if nurl['name']:
+						# 	url_name = re.sub(r'\W+', '-', nurl['name'].strip())
+							# url_name_show = url_name
+						doc_script = None
 						try:
-							NurtureUrl.objects.filter(id = nurl['id']).update(name = nurl['name'], url = nurl['url'],doc_script=nurl['doc_script'] if nurl['doc_script'] else None)
+							doc_script = nurl['doc_script'].strip()
+						except Exception as err:
+							print(err)	
+
+						try:
+							NurtureUrl.objects.filter(id = nurl['id']).update(name = nurl['name'].strip(),url_name_show = nurl['url_name_show'].strip(), url = nurl['url'].strip(),doc_script=doc_script)
+							# NurtureUrl.objects.filter(id = nurl['id']).update(name = nurl['name'], url = nurl['url'])
 							continue
 						except Exception as err:
 							print(err)	
@@ -84,13 +102,22 @@ class NurtureApi(APIView):
 						nurture_url = NurtureUrl()
 						if not nurl['name'] and not nurl['url']:
 							continue
+						if nurl['name']:
+							url_name = re.sub(r'\W+', '-', nurl['name'].strip())
+							nurture_url.url_name_show = url_name
 						# if nurl['url'] and ".pdf" in nurl['url']:
 						# 	nurture_url.url ="https://docs.google.com/viewer?url="+nurl['url']+"&embedded=true"		
 						# else:
 						# 	nurture_url.url = nurl['url']
-						nurture_url.name = nurl['name'] 
-						nurture_url.url = nurl['url'] 
-						nurture_url.doc_script = nurl['doc_script'] if nurl['doc_script'] else None
+						# nurture_url.url_name_show=nurl['url_name_show']
+						doc_script = None
+						try:
+							doc_script = nurl['doc_script'].strip()
+						except Exception as err:
+							print(err)	
+						nurture_url.name = nurl['name'].strip() 
+						nurture_url.url = nurl['url'].strip()
+						nurture_url.doc_script = doc_script
 						nurture_url.nurture = nurture
 						urlData.append(nurture_url) 
 					NurtureUrl.objects.bulk_create(urlData)
@@ -133,11 +160,14 @@ class NurtureUrlApi(APIView):
 			if ".pdf" in request.data.get('url'):
 				nurture_url = "https://docs.google.com/viewer?url="+request.data.get('url')+"&embedded=true"
 				RequestOverwrite().overWrite(request, {'url':nurture_url})
+			if request.data.get('name'):
+				url_name = re.sub(r'\W+', '-', request.data.get('name').strip())
+				print(url_name)
+				RequestOverwrite().overWrite(request, {'url_name_show':url_name})
 			nurture_data = NurtureUrlSerializer(data=request.data)
 			if not(nurture_data.is_valid()):
 				return ApiResponse().error(nurture_data.errors, 400)
 			nurture_data.save()
-			print(nurture_data.data)
 			return ApiResponse().success(nurture_data.data, 200)
 		except Exception as err:
 			print(err)

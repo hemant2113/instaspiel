@@ -8,10 +8,14 @@ from app.company.models import Company
 from app.lib.response import ApiResponse
 from app.lib.common import RequestOverwrite
 from app.users.serializers import ProfileSerializer
+# from rest_framework.decorators import authentication_classes, permission_classes
+# from app.users.permissions import IsAuthenticatedOrCreate
 
 class CompanyApi(APIView):
+	# permission_classes = (IsAuthenticatedOrCreate, )
 	def post(self,request):
 		try:
+			print(request.data)
 			company_data = CompanySerializer(data=request.data)
 			if not company_data.is_valid():
 				return ApiResponse().error(company_data.errors,400)

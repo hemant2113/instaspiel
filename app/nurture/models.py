@@ -6,6 +6,7 @@ class Nurture(models.Model):
 
 	company = models.ForeignKey(Company)
 	name = models.CharField(max_length=500)
+	nurture_name_show = models.CharField(max_length=500,null=True,blank=True)
 	description = models.TextField(null=True,blank=True)
 	is_deleted = models.BooleanField(default=False)
 	created_at = models.DateTimeField(auto_now_add=True)
@@ -14,11 +15,13 @@ class Nurture(models.Model):
 	class Meta:
 		managed = True
 		db_table = 'nurture'
+		ordering = ['id']
 
 class NurtureUrl(models.Model):
 
 	nurture = models.ForeignKey(Nurture)
 	name = models.CharField(max_length=500,null=True,blank=True)
+	url_name_show = models.CharField(max_length=500,null=True,blank=True)
 	url = models.TextField(null=True,blank=True)
 	doc_script = models.TextField(null=True,blank=True)
 	is_deleted = models.BooleanField(default=False)
@@ -28,3 +31,4 @@ class NurtureUrl(models.Model):
 	class Meta:
 		managed = True
 		db_table = 'nurture_url'
+		ordering = ['id']

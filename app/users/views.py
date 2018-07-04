@@ -15,15 +15,19 @@ from app.lib.response import ApiResponse
 from app.lib.common import AccessUserObj,RequestOverwrite
 from app.lib.email import Email
 from functools import wraps
-from rest_framework.decorators import authentication_classes, permission_classes
-from app.lib.permissions import IsAuthenticatedOrCreate
+# from rest_framework.decorators import authentication_classes, permission_classes
+# from app.users.permissions import IsAuthenticatedOrCreate
+
+
 
 class UserApi(APIView):
 	
+	# permission_classes = (IsAuthenticatedOrCreate, )
 	def post(self,request):
 		try:
-			# user_token = AccessUserObj().fromToken(request).user
-			# user_id = UserProfile.objects.get(user_id = user_token.id)
+			# user = AccessUserObj().fromToken(request).user
+			# user_id = UserProfile.objects.get(user_id = user.id)
+		
 			user_info = UserSerializer(data = request.data)
 			if not user_info.is_valid():
 				return ApiResponse().error(user_info.errors,400)
@@ -33,6 +37,7 @@ class UserApi(APIView):
 			RequestOverwrite().overWrite(request, {'user':user.id})
 			user_data = ProfileSerializer(data=request.data)
 			if not(user_data.is_valid()):
+				# user.delete()
 				return ApiResponse().error(user_data.errors, 400)
 			user_data.save()
 			email = request.data.get('email')
@@ -67,9 +72,8 @@ class UserApi(APIView):
 		except Exception as err:
 			print(err)
 			return None
-
+	
 	def get(self,request,user_id=None):
-		permission_classes = (IsAuthenticatedOrCreate, )
 		try:
 			if(user_id):
 				try:
@@ -86,7 +90,7 @@ class UserApi(APIView):
 			return ApiResponse().error("Error", 500)
 
 	def put(self,request,user_id):
-		permission_classes = (IsAuthenticatedOrCreate, )
+	
 		try:
 			if(request.data.get('email')):
 				try:
@@ -133,7 +137,8 @@ class UserCompanyApi(APIView):
 
 
 class LoginApi(APIView):
-	permission_classes = (IsAuthenticatedOrCreate, )
+	
+	# permission_classes = (IsAuthenticatedOrCreate, )
 	def post(self,request):
 		try:
 			# if not len(request.data.get('password'))>=6:
@@ -171,7 +176,7 @@ class LoginApi(APIView):
 			return ApiResponse().error("Error while login", 500)
 
 class LogOut(APIView): 
-	
+	# permission_classes = (IsAuthenticatedOrCreate, )
 	def post(self,request):
 		try:
 			user = AccessUserObj().fromToken(request).user.id
@@ -184,7 +189,7 @@ class LogOut(APIView):
 			return ApiResponse().error('Error', 500)
 
 class CheckEmail(APIView):
-	
+	# permission_classes = (IsAuthenticatedOrCreate, )
 	def post(self,request):
 		try:
 			user = User.objects.get(username=request.data.get('email'))
@@ -223,6 +228,8 @@ class ChangePassword(APIView):
 
 
 class ForGotPassword(APIView):
+	
+	# permission_classes = (IsAuthenticatedOrCreate, )
 	def post(self,request):
 		try:
 			user = User.objects.get(email = request.data.get("email"))
