@@ -21,12 +21,7 @@ class NurtureSerializer(serializers.ModelSerializer):
 				'required':"Please fill this field",
 				}
 			},
-			'description': {
-				'required':True,
-				'error_messages':{
-				'required':"Please fill this field",
-				}
-			},
+			
 			'company': {
 				'required':True,
 				'error_messages':{
@@ -55,12 +50,7 @@ class NurtureDetailSerializer(serializers.ModelSerializer):
 				'required':"Please fill this field",
 				}
 			},
-			'description': {
-				'required':True,
-				'error_messages':{
-				'required':"Please fill this field",
-				}
-			},
+			
 			'company': {
 				'required':True,
 				'error_messages':{

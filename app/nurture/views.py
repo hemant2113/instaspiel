@@ -14,6 +14,10 @@ import re
 
 
 class NurtureApi(APIView):
+	def split_special_character(self, value):
+		if value:
+			return re.sub(r'\W+', '-', value.strip())
+		return None	
 	# permission_classes = (IsAuthenticatedOrCreate, )
 	def post(self,request):
 		try:
@@ -23,7 +27,7 @@ class NurtureApi(APIView):
 			# if (user_id.role.id == 3) or (user_id.role.id == 1):
 
 			if request.data.get('name'):
-				nurture_name = re.sub(r'\W+', '-', request.data.get('name').strip())
+				nurture_name = self.split_special_character(request.data.get('name'))
 				RequestOverwrite().overWrite(request, {'nurture_name_show':nurture_name})
 			nurture_data = NurtureDetailSerializer(data = request.data)
 			if not(nurture_data.is_valid()):
@@ -34,17 +38,20 @@ class NurtureApi(APIView):
 				nurture = Nurture.objects.get(id = nurture_data.data.get('id'))
 				for nurl in request.data.get('nurture_url'):		
 					nurture_url = NurtureUrl()
-					
-					if nurl['name']:
-						url_name = re.sub(r'\W+', '-', nurl['name'].strip())
-						nurture_url.url_name_show = url_name
 					nurture_url.name = nurl['name'].strip()
+					nurture_url.url_name_show = self.split_special_character(nurl['name'])
+					
+					doc_script = None
+					try:
+						doc_script = nurl['doc_script'].strip()
+					except Exception as err:
+						print(err)	
 					# if nurl['url'] and ".pdf" in nurl['url']:
 					# 	nurture_url.url = "https://docs.google.com/viewer?url="+nurl['url']+"&embedded=true"		
 					# else:
 					# 	nurture_url.url = nurl['url']
 					nurture_url.url = nurl['url'].strip()
-					nurture_url.doc_script = nurl['doc_script'].strip() if nurl['doc_script'] else None 
+					nurture_url.doc_script = doc_script
 					nurture_url.nurture = nurture
 					urlData.append(nurture_url) 
 				NurtureUrl.objects.bulk_create(urlData)
@@ -73,22 +80,23 @@ class NurtureApi(APIView):
 	def put(self,request,nurture_id):
 		try:
 			get_data = Nurture.objects.get(pk=nurture_id)
+			if request.data.get('name'):
+				nurture_name = self.split_special_character(request.data.get('name'))
+				RequestOverwrite().overWrite(request, {'nurture_name_show':nurture_name})
 			update_data = NurtureDetailSerializer(get_data,data=request.data)
 			if update_data.is_valid():
 				update_data.save()
 				if(request.data.get('nurture_url_1')):
 					for nurl in request.data.get('nurture_url_1'):
-						# if nurl['name']:
-						# 	url_name = re.sub(r'\W+', '-', nurl['name'].strip())
-							# url_name_show = url_name
+						url_name_show = self.split_special_character(nurl['name'])
 						doc_script = None
 						try:
 							doc_script = nurl['doc_script'].strip()
 						except Exception as err:
-							print(err)	
+							print(err)
 
 						try:
-							NurtureUrl.objects.filter(id = nurl['id']).update(name = nurl['name'].strip(),url_name_show = nurl['url_name_show'].strip(), url = nurl['url'].strip(),doc_script=doc_script)
+							NurtureUrl.objects.filter(id = nurl['id']).update(name = nurl['name'].strip(),url_name_show = url_name_show, url = nurl['url'].strip(),doc_script=doc_script)
 							# NurtureUrl.objects.filter(id = nurl['id']).update(name = nurl['name'], url = nurl['url'])
 							continue
 						except Exception as err:
@@ -102,9 +110,10 @@ class NurtureApi(APIView):
 						nurture_url = NurtureUrl()
 						if not nurl['name'] and not nurl['url']:
 							continue
-						if nurl['name']:
-							url_name = re.sub(r'\W+', '-', nurl['name'].strip())
-							nurture_url.url_name_show = url_name
+						# if nurl['name']:
+						# 	url_name = re.sub(r'\W+', '-', nurl['name'].strip())
+						# 	nurture_url.split_special_character = url_name
+						nurture_url.url_name_show = self.split_special_character(nurl['name'])
 						# if nurl['url'] and ".pdf" in nurl['url']:
 						# 	nurture_url.url ="https://docs.google.com/viewer?url="+nurl['url']+"&embedded=true"		
 						# else:
@@ -157,13 +166,10 @@ class NurtureUrlApi(APIView):
 	# permission_classes = (IsAuthenticatedOrCreate, )
 	def post(self,request):
 		try:
-			if ".pdf" in request.data.get('url'):
-				nurture_url = "https://docs.google.com/viewer?url="+request.data.get('url')+"&embedded=true"
-				RequestOverwrite().overWrite(request, {'url':nurture_url})
-			if request.data.get('name'):
-				url_name = re.sub(r'\W+', '-', request.data.get('name').strip())
-				print(url_name)
-				RequestOverwrite().overWrite(request, {'url_name_show':url_name})
+			# if ".pdf" in request.data.get('url'):
+			# 	nurture_url = "https://docs.google.com/viewer?url="+request.data.get('url')+"&embedded=true"
+			# 	RequestOverwrite().overWrite(request, {'url':nurture_url})
+		
 			nurture_data = NurtureUrlSerializer(data=request.data)
 			if not(nurture_data.is_valid()):
 				return ApiResponse().error(nurture_data.errors, 400)
