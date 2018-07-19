@@ -15,6 +15,7 @@ from app.lib.response import ApiResponse
 from app.lib.common import AccessUserObj,RequestOverwrite
 from app.lib.email import Email
 from functools import wraps
+
 # from rest_framework.decorators import authentication_classes, permission_classes
 # from app.users.permissions import IsAuthenticatedOrCreate
 
@@ -37,7 +38,6 @@ class UserApi(APIView):
 			RequestOverwrite().overWrite(request, {'user':user.id})
 			user_data = ProfileSerializer(data=request.data)
 			if not(user_data.is_valid()):
-				# user.delete()
 				return ApiResponse().error(user_data.errors, 400)
 			user_data.save()
 			email = request.data.get('email')
@@ -101,8 +101,7 @@ class UserApi(APIView):
 					print(err)
 				get_data = UserProfile.objects.get(user=user_id)
 				RequestOverwrite().overWrite(request, {'user':user_id})
-				print(request.data)
-				User.objects.filter(id = user_id).update(email = request.data.get('email'), username = request.data.get('email')) 
+				User.objects.filter(id = user_id).update(email = request.data.get('email'), username = request.data.get('email'))
 				update_data = ProfileSerializer(get_data,data=request.data)
 				if update_data.is_valid():
 					update_data.save()
@@ -115,7 +114,13 @@ class UserApi(APIView):
 
 	def delete(self,request,user_id):
 		try:
-			UserProfile.objects.filter(user=user_id).update(is_deleted=True)
+			import random,string
+			email_val = User.objects.get(id=user_id).email
+			random = ''.join([random.choice(string.ascii_letters + string.digits) for n in range(10)])
+			usrename = random + "@gmail.com"
+			email = random + "@gmail.com"
+			User.objects.filter(id = user_id).update(username = usrename,email= email)
+			UserProfile.objects.filter(user=user_id).update(is_deleted=True,deleted_val = email_val)
 			return ApiResponse().success("Successfully Deleted", 200)
 		except Exception as err:
 			print(err)
@@ -127,6 +132,7 @@ class UserCompanyApi(APIView):
 		try:
 			if(company_id):
 				userprofile = UserProfile.objects.filter(is_deleted=False, company=company_id)
+
 				user_data = ProfileSerializer(userprofile, many=True)
 			else:
 				return ApiResponse().error("please send company id", 400)
@@ -236,7 +242,6 @@ class ForGotPassword(APIView):
 		except Exception as err:
 			return ApiResponse().error("This email is not registered", 400)
 		password = User.objects.make_random_password()
-		print(password)
 		user.set_password(password)
 		user.save()
 		frm = 'instaspiel@gmail.com'

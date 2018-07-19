@@ -9,7 +9,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = User
-		fields = ('id','email','password')
+		fields = ('id','email','password','username')
 		extra_kwargs = {
 			
 			'email': {
@@ -20,7 +20,7 @@ class UserSerializer(serializers.ModelSerializer):
 			},
 			
 		}
-
+		
 
 class ProfileSerializer(serializers.ModelSerializer):
 	role_name = serializers.SerializerMethodField("getRoleName")
@@ -37,6 +37,13 @@ class ProfileSerializer(serializers.ModelSerializer):
 		except Exception as e:
 			print(e)
 
+	username = serializers.SerializerMethodField("getUsername")
+	def getUsername(self,obj):
+		try:
+			return User.objects.get(id=obj.user.id).username
+		except Exception as e:
+			print(e)
+
 	company_name = serializers.SerializerMethodField("getCompanyName")
 	def getCompanyName(self,obj):
 		try:
@@ -46,7 +53,7 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = UserProfile
-		fields = ('id','user','role','company','company_name','email','role_name','first_name','last_name','is_deleted','created_at','updated_at','status')
+		fields = ('id','user','role','company','company_name','email','username','role_name','first_name','last_name','deleted_val','is_deleted','created_at','updated_at','status')
 		extra_kwargs = {
 			# 'role': {
 			# 	'required':True,
@@ -64,3 +71,4 @@ class ProfileSerializer(serializers.ModelSerializer):
 			
 		}
 
+	

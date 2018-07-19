@@ -11,6 +11,7 @@ class UserProfile(models.Model):
 	company = models.ForeignKey(Company,blank=True,null=True)
 	first_name = models.CharField(max_length=45)
 	last_name = models.CharField(max_length=45)
+	deleted_val = models.EmailField(null=True,blank=True)
 	status = models.BooleanField(default=True)
 	is_deleted = models.BooleanField(default=False)
 	created_at = models.DateTimeField(auto_now_add=True)
