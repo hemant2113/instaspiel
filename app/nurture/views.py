@@ -16,7 +16,8 @@ import re
 class NurtureApi(APIView):
 	def split_special_character(self, value):
 		if value:
-			return re.sub(r'\W+', '-', value.strip())
+			result = re.sub(r'\W+', '-', value.strip())
+			return result.strip('-')
 		return None	
 	# permission_classes = (IsAuthenticatedOrCreate, )
 	def post(self,request):
@@ -40,7 +41,6 @@ class NurtureApi(APIView):
 					nurture_url = NurtureUrl()
 					nurture_url.name = nurl['name'].strip()
 					nurture_url.url_name_show = self.split_special_character(nurl['name'])
-					
 					doc_script = None
 					try:
 						doc_script = nurl['doc_script'].strip()
@@ -55,7 +55,7 @@ class NurtureApi(APIView):
 					nurture_url.nurture = nurture
 					urlData.append(nurture_url) 
 				NurtureUrl.objects.bulk_create(urlData)
-			return ApiResponse().success("Nurture added successfully", 200)
+			return ApiResponse().success(nurture_data.data, 200)
 			# return ApiResponse().error("You are not authorised to create nurture", 400)
 		except Exception as err:
 			print(err)
