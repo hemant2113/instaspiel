@@ -42,7 +42,7 @@ class UserApi(APIView):
 			user_data.save()
 			email = request.data.get('email')
 			password = request.data.get('password')
-			frm = 'instaspiel@gmail.com'
+			frm = 'developers11.instaspiel@gmail.com'
 			if int(request.data.get('role'))==3 or int(request.data.get('role'))==4:
 				if request.data.get('company'): 
 					
