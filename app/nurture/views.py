@@ -162,6 +162,23 @@ class NurtureDataByCompanyId(APIView):
 			print(err) 
 			return ApiResponse().error("Nurture matching query does not exist", 500)
 
+class NurtureByCompanyName(APIView):
+	def get(self,request,company_name=None):
+		try:
+			if(company_name):
+				try:
+					nurture_data = Nurture.objects.filter(is_deleted=False, company__name=company_name)
+					get_data = NurtureSerializer(nurture_data, many=True)
+				except Exception as err:
+					print(err)
+					return ApiResponse().error("Error while getting the details", 400)
+				return ApiResponse().success(get_data.data, 200)
+			return ApiResponse().error("Please provide company id", 400)
+		except Exception as err: 
+			print(err) 
+			return ApiResponse().error("Nurture matching query does not exist", 500)
+
+
 class NurtureUrlApi(APIView):
 	# permission_classes = (IsAuthenticatedOrCreate, )
 	def post(self,request):
@@ -234,3 +251,18 @@ class UrlByNurture(APIView):
 			return ApiResponse().error("NurtureUrl matching query does not exist", 500)
 
 
+class UrlByNurtureShow(APIView):
+	def get(self,request,nurture_name_show=None):
+		try:
+			if(nurture_name_show):
+				try:
+					nurtureurl_data = NurtureUrl.objects.filter(is_deleted=False, nurture__nurture_name_show=nurture_name_show)
+					get_data = NurtureUrlSerializer(nurtureurl_data, many=True)
+				except Exception as err:
+					print(err)
+					return ApiResponse().error("Error while getting the details", 400)
+				return ApiResponse().success(get_data.data, 200)
+			return ApiResponse().error("Please provide nurture id", 400)
+		except Exception as err: 
+			print(err) 
+			return ApiResponse().error("NurtureUrl matching query does not exist", 500)
