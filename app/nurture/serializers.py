@@ -13,7 +13,7 @@ class NurtureSerializer(serializers.ModelSerializer):
 	
 	class Meta:
 		model = Nurture
-		fields = ('id','name','company','nurture_name_show','nurture_url','description','is_deleted','created_at','updated_at')
+		fields = ('id','name','company','nurture_name_show','hubspot_form','nurture_url','description','is_deleted','created_at','updated_at')
 		extra_kwargs = {
 			'name': {
 				'required':True,
@@ -42,7 +42,7 @@ class NurtureDetailSerializer(serializers.ModelSerializer):
 	
 	class Meta:
 		model = Nurture
-		fields = ('id','name','company','nurture_url','nurture_name_show','description','is_deleted','created_at','updated_at')
+		fields = ('id','name','company','nurture_url','hubspot_form','nurture_name_show','description','is_deleted','created_at','updated_at')
 		extra_kwargs = {
 			'name': {
 				'required':True,
@@ -62,7 +62,7 @@ class NurtureDetailSerializer(serializers.ModelSerializer):
 class NurtureDataSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Nurture
-		fields = ('id','name','company','description','is_deleted','created_at','updated_at')
+		fields = ('id','name','company','hubspot_form','description','is_deleted','created_at','updated_at')
 		extra_kwargs = {
 			'name': {
 				'required':True,
@@ -88,7 +88,7 @@ class NurtureUrlSerializer(serializers.ModelSerializer):
 	
 	class Meta:
 		model = NurtureUrl
-		fields = ('id','name','url','nurture','url_name_show','doc_script','is_deleted','created_at','updated_at')
+		fields = ('id','name','url','hubspot_check_form','nurture','url_name_show','doc_script','is_deleted','created_at','updated_at')
 		extra_kwargs = {
 			'url': {
 				'required':True,

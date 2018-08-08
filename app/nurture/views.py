@@ -37,8 +37,10 @@ class NurtureApi(APIView):
 			if(request.data.get('nurture_url')):
 				urlData = []
 				nurture = Nurture.objects.get(id = nurture_data.data.get('id'))
+				print(nurture)
 				for nurl in request.data.get('nurture_url'):		
 					nurture_url = NurtureUrl()
+					nurture_url.hubspot_check_form = nurl['hubspot_check_form']
 					nurture_url.name = nurl['name'].strip()
 					nurture_url.url_name_show = self.split_special_character(nurl['name'])
 					doc_script = None
@@ -49,7 +51,7 @@ class NurtureApi(APIView):
 					# if nurl['url'] and ".pdf" in nurl['url']:
 					# 	nurture_url.url = "https://docs.google.com/viewer?url="+nurl['url']+"&embedded=true"		
 					# else:
-					# 	nurture_url.url = nurl['url']
+					# 	nurture_url.url = nurl['url'].strip()
 					nurture_url.url = nurl['url'].strip()
 					nurture_url.doc_script = doc_script
 					nurture_url.nurture = nurture
@@ -169,6 +171,7 @@ class NurtureByCompanyName(APIView):
 				try:
 					nurture_data = Nurture.objects.filter(is_deleted=False, company__name=company_name)
 					get_data = NurtureSerializer(nurture_data, many=True)
+					
 				except Exception as err:
 					print(err)
 					return ApiResponse().error("Error while getting the details", 400)
