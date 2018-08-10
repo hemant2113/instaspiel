@@ -98,7 +98,7 @@ class NurtureApi(APIView):
 							print(err)
 
 						try:
-							NurtureUrl.objects.filter(id = nurl['id']).update(name = nurl['name'].strip(),url_name_show = url_name_show, url = nurl['url'].strip(),doc_script=doc_script)
+							NurtureUrl.objects.filter(id = nurl['id']).update(name = nurl['name'].strip(),url_name_show = url_name_show, url = nurl['url'].strip(),doc_script=doc_script,hubspot_check_form=nurl['hubspot_check_form'])
 							# NurtureUrl.objects.filter(id = nurl['id']).update(name = nurl['name'], url = nurl['url'])
 							continue
 						except Exception as err:
@@ -125,7 +125,8 @@ class NurtureApi(APIView):
 						try:
 							doc_script = nurl['doc_script'].strip()
 						except Exception as err:
-							print(err)	
+							print(err)
+						nurture_url.hubspot_check_form = nurl['hubspot_check_form']	
 						nurture_url.name = nurl['name'].strip() 
 						nurture_url.url = nurl['url'].strip()
 						nurture_url.doc_script = doc_script
@@ -171,7 +172,7 @@ class NurtureByCompanyName(APIView):
 				try:
 					nurture_data = Nurture.objects.filter(is_deleted=False, company__name=company_name)
 					get_data = NurtureSerializer(nurture_data, many=True)
-					
+					print(get_data.data)
 				except Exception as err:
 					print(err)
 					return ApiResponse().error("Error while getting the details", 400)
