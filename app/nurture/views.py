@@ -9,8 +9,8 @@ from app.lib.response import ApiResponse
 from app.lib.common import AccessUserObj, RequestOverwrite
 from app.users.models import UserProfile
 import re
-# from rest_framework.decorators import authentication_classes, permission_classes
-# from app.users.permissions import IsAuthenticatedOrCreate
+from rest_framework.decorators import authentication_classes, permission_classes
+from app.users.permissions import IsAuthenticatedOrCreate
 
 
 class NurtureApi(APIView):
@@ -79,6 +79,7 @@ class NurtureApi(APIView):
 			print(err) 
 			return ApiResponse().error("Nurture does not exists", 500)
 
+	permission_classes = (IsAuthenticatedOrCreate, )		
 	def put(self,request,nurture_id):
 		try:
 			get_data = Nurture.objects.get(pk=nurture_id)
@@ -141,6 +142,7 @@ class NurtureApi(APIView):
 			print(err)
 			return ApiResponse().error("Error", 500)
 
+	permission_classes = (IsAuthenticatedOrCreate, )		
 	def delete(self,request,nurture_id):
 		try:
 			Nurture.objects.filter(pk=nurture_id).update(is_deleted=True)
@@ -150,6 +152,7 @@ class NurtureApi(APIView):
 			return ApiResponse().error("Please send valid id", 500)
 
 class NurtureDataByCompanyId(APIView):
+	# permission_classes = (IsAuthenticatedOrCreate, )
 	def get(self,request,company_id=None):
 		try:
 			if(company_id):
@@ -229,6 +232,7 @@ class NurtureUrlApi(APIView):
 		except:
 			return ApiResponse().error("Error", 500)
 
+	permission_classes = (IsAuthenticatedOrCreate, )		
 	def delete(self,request,nurtureurl_id):
 		try:
 			NurtureUrl.objects.filter(pk=nurtureurl_id).update(is_deleted=True)
@@ -239,6 +243,7 @@ class NurtureUrlApi(APIView):
 
 
 class UrlByNurture(APIView):
+	# permission_classes = (IsAuthenticatedOrCreate, )
 	def get(self,request,nurture_id=None):
 		try:
 			if(nurture_id):

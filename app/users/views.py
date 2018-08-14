@@ -16,8 +16,8 @@ from app.lib.common import AccessUserObj,RequestOverwrite
 from app.lib.email import Email
 from functools import wraps
 
-# from rest_framework.decorators import authentication_classes, permission_classes
-# from app.users.permissions import IsAuthenticatedOrCreate
+from rest_framework.decorators import authentication_classes, permission_classes
+from app.users.permissions import IsAuthenticatedOrCreate
 
 
 
@@ -42,7 +42,7 @@ class UserApi(APIView):
 			user_data.save()
 			email = request.data.get('email')
 			password = request.data.get('password')
-			frm = 'developers11.instaspiel@gmail.com'
+			frm = 'instaspiel@marketheed.com'
 			if int(request.data.get('role'))==3 or int(request.data.get('role'))==4:
 				if request.data.get('company'): 
 					
@@ -90,7 +90,6 @@ class UserApi(APIView):
 			return ApiResponse().error("Error", 500)
 
 	def put(self,request,user_id):
-	
 		try:
 			if(request.data.get('email')):
 				try:
@@ -112,6 +111,7 @@ class UserApi(APIView):
 			print(err)
 			return ApiResponse().error("Error", 500)
 
+	permission_classes = (IsAuthenticatedOrCreate, )		
 	def delete(self,request,user_id):
 		try:
 			import random,string
@@ -128,6 +128,7 @@ class UserApi(APIView):
 
 class UserCompanyApi(APIView):
 
+	permission_classes = (IsAuthenticatedOrCreate, )
 	def get(self,request,company_id=None):
 		try:
 			if(company_id):
