@@ -180,7 +180,7 @@ class NurtureByCompanyName(APIView):
 					print(err)
 					return ApiResponse().error("Error while getting the details", 400)
 				return ApiResponse().success(get_data.data, 200)
-			return ApiResponse().error("Please provide company id", 400)
+			return ApiResponse().error("Please provide company Name", 400)
 		except Exception as err: 
 			print(err) 
 			return ApiResponse().error("Nurture matching query does not exist", 500)
@@ -271,7 +271,7 @@ class UrlByNurtureShow(APIView):
 					print(err)
 					return ApiResponse().error("Error while getting the details", 400)
 				return ApiResponse().success(get_data.data, 200)
-			return ApiResponse().error("Please provide nurture id", 400)
+			return ApiResponse().error("Please provide nurture name", 400)
 		except Exception as err: 
 			print(err) 
 			return ApiResponse().error("NurtureUrl matching query does not exist", 500)
